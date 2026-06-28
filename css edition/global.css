@@ -1,0 +1,208 @@
+:root {
+    --bg-sidebar: #0B1120;
+    --bg-main: #0F172A;
+    --bg-surface: #1E293B;
+    --border-color: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --accent-blue: #0A84FF;
+    --danger-red: #FF453A;
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-primary);
+    background-color: var(--bg-main);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.sidebar {
+    width: 240px;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sidebar-brand {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+}
+
+.sidebar-actions {
+    padding: 0.5rem 1.25rem;
+}
+
+/* Botón principal!! */
+.btn-new-sim {
+    width: 100%;
+    background-color: var(--accent-blue);
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem; 
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.btn-new-sim:hover {
+    background-color: #0076e5;
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 1rem 1.25rem; 
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; 
+}
+
+/* Opciones del menú!!!!! */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.55rem 0.85rem; 
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem; 
+    border-radius: 6px; 
+    transition: all 0.2s;
+}
+
+.nav-item i {
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    background-color: rgba(10, 132, 255, 0.1);
+    color: var(--accent-blue);
+}
+
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.logout {
+    color: var(--danger-red);
+}
+
+.logout:hover {
+    color: #ff6b62;
+    background-color: rgba(255, 69, 58, 0.1);
+}
+
+.app-info {
+    padding: 1rem 0.85rem 0.5rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.main-workspace {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-main);
+}
+
+.topbar {
+    height: 70px;
+    background-color: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.breadcrumb-root {
+    color: var(--text-secondary);
+}
+
+.separator {
+    color: var(--text-secondary);
+    font-size: 0.6rem;
+}
+
+.breadcrumb-current {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.topbar-tools {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.tool-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.tool-btn:hover {
+    color: var(--text-primary);
+}
+
+.avatar-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.content-area {
+    flex-grow: 1;
+    padding: 2.5rem;
+    overflow-y: auto;
+}
