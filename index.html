@@ -1,18 +1,77 @@
 <!DOCTYPE html>
-<html lang ="es">
-    <head>
-        <meta charset ="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Intranet Quirurjico</title>
-    </head>
-    <body>
-        <div class ="app-container">
-            <aside class = "sidebar">
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet Quirúrgico</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                </div>
+            
+            <div class="sidebar-actions">
+                <button class="btn-new-sim">
+                    <i class="fa-solid fa-plus"></i> NUEVA SIMULACIÓN
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-heart-pulse"></i> Simulación Quirúrgica
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-chart-simple"></i> Análisis de Pacientes
+                </a>
+                <a href="#" class="nav-item active">
+                    <i class="fa-solid fa-file-lines"></i> Historial de Procedimientos
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-flask"></i> Portal de Investigación
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item">
+                    <i class="fa-solid fa-headset"></i> Soporte Técnico
+                </a>
+                <a href="#" class="nav-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
+                </a>
+                <div class="app-info">
+                    <p>Versión 2.4.1</p>
+                    <p>Sincronización en la Nube Activa</p>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-workspace">
+            <header class="topbar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-root">CardioSupport AI</span>
+                    <i class="fa-solid fa-chevron-right separator"></i>
+                    <span class="breadcrumb-current">Historial de Procedimientos</span>
+                </div>
                 
-            </aside>
+                <div class="topbar-tools">
+                    <button class="tool-btn"><i class="fa-regular fa-bell"></i></button>
+                    <button class="tool-btn"><i class="fa-solid fa-gear"></i></button>
+                    <button class="avatar-btn"><i class="fa-regular fa-user"></i></button>
+                </div>
+            </header>
+
+            <main class="content-area">
+                
+            </main>
         </div>
-        <script type="module" src="java edition/app.js"></script>
-    </body>
-       
+
+    </div>
+
+    <script type="module" src="java edition/app.js"></script>
+</body>
 </html>
-</!DOCTYPE>
