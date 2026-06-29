@@ -259,3 +259,19 @@ body {
 .progress-bar-container { background-color: #e2e8f0; height: 6px; border-radius: 3px; margin-bottom: 8px; }
 .progress-bar-fill { background-color: #22c55e; width: 4%; height: 100%; }
 .risk-footer { font-size: 11px; color: var(--text-muted); }
+
+.medical-search-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    outline: none;
+    padding-bottom: 2px;
+    border-bottom: 1px dashed #cbd5e1; /* Línea sutil indicando que es editable */
+}
+.medical-search-input:focus {
+    border-bottom-color: #1e60ff; /* Se ilumina en azul al escribir */
+}

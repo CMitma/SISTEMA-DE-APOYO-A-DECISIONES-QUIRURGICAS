@@ -176,3 +176,16 @@
     color: #475569;
     line-height: 1.5;
 }
+
+.simulator-status-alert {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 1px solid #bae6fd;
+}
