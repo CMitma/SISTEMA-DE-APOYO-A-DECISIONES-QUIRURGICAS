@@ -1,0 +1,370 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+    const state = {
+        simulations: [
+            { id: "SIM-2023-0892", date: "24 Oct 2023, 08:30", patientId: "PT-9921", patientName: "Armando Cisneros", riskLvl: "SEGURO", riskScore: 12, timeEst: "3h 45m", operation: "Bypass Coronario (Complejidad Espacial)" },
+            { id: "SIM-2023-0891", date: "24 Oct 2023, 07:15", patientId: "PT-8344", patientName: "Graciela Montenegro", riskLvl: "CRÍTICO", riskScore: 78, timeEst: "5h 20m", operation: "Trasplante Cardiaco de Alta Complex" }
+        ]
+    };
+
+    const loginScreen = document.getElementById('login-screen');
+    const appMain = document.getElementById('appMain');
+    const loginForm = document.getElementById('loginForm');
+    const btnLogout = document.getElementById('btnLogout');
+
+    const navSimulacion = document.getElementById('nav-simulacion');
+    const navAnalisis = document.getElementById('nav-analisis');
+    const navHistorial = document.getElementById('nav-historial');
+    
+    const vistaSimulacion = document.getElementById('vista-simulacion');
+    const vistaAnalisis = document.getElementById('vista-analisis');
+    const vistaHistorial = document.getElementById('vista-historial');
+    
+    const breadcrumbActual = document.getElementById('breadcrumb-actual');
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        loginScreen.classList.add('hidden');
+        appMain.classList.remove('hidden');
+        resetLogoutTimer();
+        actualizarVistas(); 
+    });
+
+    btnLogout.addEventListener('click', (e) => {
+        e.preventDefault();
+        appMain.classList.add('hidden');
+        loginScreen.classList.remove('hidden');
+        loginForm.reset();
+        clearTimeout(logoutTimer);
+    });
+
+    function resetViews() {
+        navSimulacion.classList.remove('active');
+        navAnalisis.classList.remove('active');
+        navHistorial.classList.remove('active');
+        vistaSimulacion.classList.add('hidden');
+        vistaAnalisis.classList.add('hidden');
+        vistaHistorial.classList.add('hidden');
+    }
+
+    navSimulacion.addEventListener('click', (e) => {
+        e.preventDefault(); resetViews();
+        navSimulacion.classList.add('active');
+        vistaSimulacion.classList.remove('hidden');
+        breadcrumbActual.textContent = "Simulación Quirúrgica";
+    });
+
+    navAnalisis.addEventListener('click', (e) => {
+        e.preventDefault(); resetViews();
+        navAnalisis.classList.add('active');
+        vistaAnalisis.classList.remove('hidden');
+        breadcrumbActual.textContent = "Análisis de Pacientes";
+    });
+
+    navHistorial.addEventListener('click', (e) => {
+        e.preventDefault(); resetViews();
+        navHistorial.classList.add('active');
+        vistaHistorial.classList.remove('hidden');
+        breadcrumbActual.textContent = "Historial de Procedimientos";
+    });
+
+
+    const btnConcluirSim = document.getElementById('btn-concluir-sim');
+    const btnNuevaSimSidebar = document.getElementById('btn-nueva-sim-sidebar');
+    const btnReiniciarSim = document.getElementById('btn-reiniciar-sim');
+    
+    const inputPaciente = document.getElementById('buscar-paciente');
+    const lblPacienteId = document.getElementById('lbl-paciente-id');
+    const selectOperacion = document.getElementById('select-operacion');
+
+    const valFc = document.getElementById('val-fc');
+    const valPa = document.getElementById('val-pa');
+    const valRiskScore = document.getElementById('val-risk-score');
+    const riskBarFill = document.getElementById('risk-bar-fill');
+
+    function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function generarNuevaSimulacion() {
+        inputPaciente.value = "";
+        lblPacienteId.textContent = `PT-${randomInt(1000, 9999)}`;
+        selectOperacion.selectedIndex = 0;
+        
+        let newRisk = randomInt(2, 85);
+        valFc.textContent = randomInt(60, 100);
+        valPa.textContent = `${randomInt(110, 140)}/${randomInt(70, 90)}`;
+        
+        valRiskScore.textContent = `${newRisk}%`;
+        riskBarFill.style.width = `${newRisk}%`;
+        
+        if (newRisk > 70) riskBarFill.style.backgroundColor = "var(--danger-red)";
+        else if (newRisk > 30) riskBarFill.style.backgroundColor = "var(--node-warning)";
+        else riskBarFill.style.backgroundColor = "var(--node-safe)";
+        
+        navSimulacion.click(); // Navegar a la simulación
+    }
+
+    btnNuevaSimSidebar.addEventListener('click', generarNuevaSimulacion);
+    btnReiniciarSim.addEventListener('click', generarNuevaSimulacion);
+
+    btnConcluirSim.addEventListener('click', () => {
+        let riskScore = parseInt(valRiskScore.textContent);
+        let riskLvl = riskScore > 70 ? "CRÍTICO" : (riskScore > 30 ? "CAUTELOSO" : "SEGURO");
+        
+        // Crear objeto de simulación
+        let nuevaSim = {
+            id: `SIM-2023-0${randomInt(900, 999)}`,
+            date: new Date().toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            patientId: lblPacienteId.textContent,
+            patientName: inputPaciente.value || "Paciente Anónimo",
+            riskLvl: riskLvl,
+            riskScore: riskScore,
+            timeEst: `${randomInt(2, 6)}h ${randomInt(10, 50)}m`,
+            operation: selectOperacion.value
+        };
+
+        // Guardar en el array (al principio)
+        state.simulations.unshift(nuevaSim);
+        
+        alert(`Simulación ${nuevaSim.id} concluida con éxito y registrada en el sistema.`);
+        actualizarVistas();
+    });
+
+    function actualizarVistas() {
+        renderHistorial();
+        renderAnalisis();
+    }
+
+    function renderHistorial() {
+        const tbody = document.getElementById('historial-tbody');
+        tbody.innerHTML = '';
+        
+        let criticos = 0;
+        
+        state.simulations.forEach(sim => {
+            if (sim.riskLvl === "CRÍTICO") criticos++;
+            
+            let badgeClass = sim.riskLvl === "SEGURO" ? "badge-safe" : (sim.riskLvl === "CRÍTICO" ? "badge-critical" : "badge-warning");
+            
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${sim.id}</strong></td>
+                <td>${sim.date}</td>
+                <td><strong>${sim.patientId}</strong> ${sim.patientName}</td>
+                <td><span class="badge ${badgeClass}"><i class="fa-solid fa-circle"></i> ${sim.riskLvl}</span></td>
+                <td>${sim.timeEst} / ${sim.riskScore}% risk</td>
+                <td class="actions-cell"><i class="fa-regular fa-eye"></i> <i class="fa-regular fa-file-lines"></i></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('hist-total').textContent = state.simulations.length;
+        document.getElementById('hist-criticos').textContent = criticos;
+    }
+
+    function renderAnalisis() {
+        let total = state.simulations.length;
+        if (total === 0) return;
+
+        let totalRisk = 0;
+        let cSafe = 0, cWarn = 0, cCrit = 0;
+        let cBypass = 0, cTrans = 0, cValv = 0;
+
+        state.simulations.forEach(sim => {
+            totalRisk += sim.riskScore;
+            if (sim.riskLvl === "SEGURO") cSafe++;
+            else if (sim.riskLvl === "CRÍTICO") cCrit++;
+            else cWarn++;
+
+            if (sim.operation.includes("Bypass")) cBypass++;
+            else if (sim.operation.includes("Trasplante")) cTrans++;
+            else cValv++;
+        });
+
+        let avgRisk = Math.round(totalRisk / total);
+        let success = total - cCrit; 
+
+    
+        document.getElementById('ana-total-sim').textContent = total;
+        document.getElementById('ana-nuevas-hoy').textContent = `+${total - 2} agregadas hoy`;
+        document.getElementById('ana-avg-risk').textContent = `${avgRisk}%`;
+        document.getElementById('ana-critical').textContent = cCrit;
+        document.getElementById('ana-critical-pct').textContent = `${Math.round((cCrit/total)*100)}% del total quirúrgico`;
+        document.getElementById('ana-success').textContent = success;
+        document.getElementById('ana-success-pct').textContent = `${Math.round((success/total)*100)}% total de supervivencia`;
+
+        document.getElementById('ana-bar-safe').style.width = `${(cSafe/total)*100}%`;
+        document.getElementById('ana-bar-safe-txt').textContent = `${cSafe} casos (${Math.round((cSafe/total)*100)}%)`;
+        
+        document.getElementById('ana-bar-warn').style.width = `${(cWarn/total)*100}%`;
+        document.getElementById('ana-bar-warn-txt').textContent = `${cWarn} casos (${Math.round((cWarn/total)*100)}%)`;
+        
+        document.getElementById('ana-bar-crit').style.width = `${(cCrit/total)*100}%`;
+        document.getElementById('ana-bar-crit-txt').textContent = `${cCrit} casos (${Math.round((cCrit/total)*100)}%)`;
+
+        document.getElementById('ana-proc-bypass').textContent = cBypass;
+        document.getElementById('ana-proc-trasplante').textContent = cTrans;
+        document.getElementById('ana-proc-valvula').textContent = cValv;
+    }
+
+    const modalMedico = document.getElementById('modal-medico');
+    const btnAvatarPerfil = document.getElementById('btn-avatar-perfil');
+    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
+    
+    const formContainer = document.getElementById('profile-form');
+    const btnModificar = document.getElementById('btn-modificar');
+    const btnGuardar = document.getElementById('btn-guardar');
+    const btnCancelar = document.getElementById('btn-cancelar');
+    const inputs = document.querySelectorAll('.data-input');
+    const STORAGE_KEY = 'doctor_profile_data';
+    
+    function populateFields() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if(stored) {
+            const data = JSON.parse(stored);
+            document.getElementById('input-nombres').value = data.nombres;
+            document.getElementById('input-apellidos').value = data.apellidos;
+            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
+        }
+        inputs.forEach(i => i.classList.remove('error'));
+    }
+
+    function toggleEditMode(isEditing) {
+        if (isEditing) {
+            formContainer.classList.add('is-editing');
+            btnModificar.style.display = 'none';
+            btnGuardar.style.display = 'inline-block';
+            btnCancelar.style.display = 'inline-block';
+            inputs.forEach(i => i.removeAttribute('readonly'));
+        } else {
+            formContainer.classList.remove('is-editing');
+            btnModificar.style.display = 'inline-block';
+            btnGuardar.style.display = 'none';
+            btnCancelar.style.display = 'none';
+            inputs.forEach(i => { i.setAttribute('readonly', true); i.classList.remove('error'); });
+        }
+    }
+
+    btnAvatarPerfil.addEventListener('click', () => { populateFields(); modalMedico.classList.remove('hidden'); });
+    btnCerrarModal.addEventListener('click', () => { modalMedico.classList.add('hidden'); toggleEditMode(false); });
+    btnModificar.addEventListener('click', () => toggleEditMode(true));
+    btnCancelar.addEventListener('click', () => { populateFields(); toggleEditMode(false); });
+    
+    btnGuardar.addEventListener('click', () => {
+        let isValid = true;
+        inputs.forEach(input => {
+            if(input.value.trim() === '') { isValid = false; input.classList.add('error'); }
+            else { input.classList.remove('error'); }
+        });
+        if (isValid) {
+            const data = {
+                nombres: document.getElementById('input-nombres').value,
+                apellidos: document.getElementById('input-apellidos').value
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
+            toggleEditMode(false);
+        } else {
+            alert("Todos los campos son obligatorios.");
+        }
+    });
+
+    const btnNotif = document.getElementById('btn-notificaciones');
+    const dropdown = document.getElementById('notif-dropdown');
+    const badge = document.getElementById('notif-badge-count');
+    const notifItems = document.querySelectorAll('.notif-item');
+    const filterAll = document.getElementById('filter-all');
+    const filterUnread = document.getElementById('filter-unread');
+    const btnOptions = document.getElementById('btn-notif-options');
+    const menuOptions = document.getElementById('notif-options-menu');
+    const btnMarkRead = document.getElementById('btn-mark-all-read');
+
+    btnNotif.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); menuOptions.classList.add('hidden'); });
+    btnOptions.addEventListener('click', (e) => { e.stopPropagation(); menuOptions.classList.toggle('hidden'); });
+    
+    function updateNotifVisibility() {
+        const isUnreadFilter = filterUnread.classList.contains('active');
+        const showCriticalOnly = document.getElementById('check-alertas-criticas').checked;
+        
+        let visibleCount = 0;
+        notifItems.forEach(item => {
+            const isUnread = item.classList.contains('unread');
+            const isCritical = item.classList.contains('critical-alert');
+            
+            let shouldShow = true;
+            if (isUnreadFilter && !isUnread) shouldShow = false;
+            if (showCriticalOnly && !isCritical) shouldShow = false;
+            
+            item.style.display = shouldShow ? 'flex' : 'none';
+            if (isUnread && shouldShow && !showCriticalOnly) visibleCount++;
+            if (isUnread && showCriticalOnly && isCritical) visibleCount++;
+        });
+    }
+
+    filterAll.addEventListener('click', (e) => { e.stopPropagation(); filterAll.classList.add('active'); filterUnread.classList.remove('active'); updateNotifVisibility(); });
+    filterUnread.addEventListener('click', (e) => { e.stopPropagation(); filterUnread.classList.add('active'); filterAll.classList.remove('active'); updateNotifVisibility(); });
+
+    btnMarkRead.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notifItems.forEach(i => i.classList.remove('unread'));
+        badge.style.display = 'none';
+        menuOptions.classList.add('hidden');
+        updateNotifVisibility();
+    });
+
+    notifItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if(this.classList.contains('unread')) {
+                this.classList.remove('unread');
+                let c = parseInt(badge.textContent);
+                if(c > 0) { c--; badge.textContent = c; if(c===0) badge.style.display = 'none'; }
+                updateNotifVisibility();
+            }
+            dropdown.classList.add('hidden');
+        });
+    });
+
+    const btnConfig = document.getElementById('btn-configuracion');
+    const configPanel = document.getElementById('config-panel');
+    const configOverlay = document.getElementById('config-overlay');
+    const btnCloseConfig = document.getElementById('btn-cerrar-config');
+    const selectDensidad = document.getElementById('select-densidad');
+    const mainTable = document.getElementById('main-data-table');
+    const checkAlertasCriticas = document.getElementById('check-alertas-criticas');
+    const selectInactividad = document.getElementById('select-inactividad');
+
+    function openConfig() { configOverlay.classList.remove('hidden'); configPanel.classList.add('open'); }
+    function closeConfig() { configOverlay.classList.add('hidden'); configPanel.classList.remove('open'); }
+    
+    btnConfig.addEventListener('click', openConfig);
+    btnCloseConfig.addEventListener('click', closeConfig);
+    configOverlay.addEventListener('click', closeConfig);
+
+    selectDensidad.addEventListener('change', (e) => {
+        if(e.target.value === 'compacta') mainTable.classList.add('table-compact');
+        else mainTable.classList.remove('table-compact');
+    });
+
+    checkAlertasCriticas.addEventListener('change', updateNotifVisibility);
+
+    let logoutTimer;
+    function resetLogoutTimer() {
+        if(appMain.classList.contains('hidden')) return; 
+        clearTimeout(logoutTimer);
+        const minutes = parseInt(selectInactividad.value);
+        logoutTimer = setTimeout(() => {
+            alert("Sesión cerrada por inactividad (" + minutes + " min).");
+            btnLogout.click();
+        }, minutes * 60 * 1000); 
+    }
+
+    ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => { document.addEventListener(evt, resetLogoutTimer); });
+    selectInactividad.addEventListener('change', resetLogoutTimer);
+
+    // Clics globales para cerrar menús flotantes
+    document.addEventListener('click', (e) => {
+        if(!dropdown.classList.contains('hidden') && !document.getElementById('notif-wrapper').contains(e.target)) dropdown.classList.add('hidden');
+        if(!menuOptions.classList.contains('hidden') && !document.querySelector('.notif-options-wrapper').contains(e.target)) menuOptions.classList.add('hidden');
+        if(e.target === modalMedico) btnCerrarModal.click();
+    });
+});
