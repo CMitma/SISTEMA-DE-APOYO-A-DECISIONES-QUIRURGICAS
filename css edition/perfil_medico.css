@@ -1,0 +1,22 @@
+/* ==========================================
+   MODAL: PERFIL MÉDICO
+   ========================================== */
+.modal-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
+.profile-container { width: 900px; background: var(--bg-modal); border-radius: 12px; display: flex; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.btn-close-modal { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; color: var(--text-secondary-modal); cursor: pointer; z-index: 10; }
+.profile-aside { width: 300px; background: var(--bg-aside-modal); border-right: 1px solid var(--border-modal); padding: 3rem 2rem; text-align: center; }
+.avatar-placeholder { width: 120px; height: 120px; border-radius: 50%; background: var(--bg-main); border: 2px dashed var(--border-modal); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 1.5rem; color: var(--text-secondary-modal); }
+.avatar-placeholder i { font-size: 2rem; margin-bottom: 0.5rem; }
+.doctor-name { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary-modal); }
+.badge-specialty { font-size: 0.75rem; background: rgba(10,132,255,0.1); color: var(--accent-blue); padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 1.5rem; }
+.profile-main { padding: 3rem; flex: 1; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+.info-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.info-group.full-width { grid-column: span 2; }
+.info-group label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary-modal); text-transform: uppercase; }
+.data-input { border: 1px solid transparent; background: transparent; font-family: var(--font-main); font-size: 0.95rem; font-weight: 500; color: var(--text-primary-modal); padding: 0.5rem 0; outline: none; }
+.is-editing .data-input { border: 1px solid var(--border-modal); background: var(--bg-main); border-radius: 6px; padding: 0.5rem 1rem; }
+.profile-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+.btn-profile { padding: 0.6rem 1.2rem; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; }
+.btn-profile-secondary { background: var(--bg-aside-modal); color: var(--text-primary-modal); border: 1px solid var(--border-modal); }
+.btn-profile-primary { background: var(--accent-blue); color: #FFF; }
