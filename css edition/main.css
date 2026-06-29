@@ -1,0 +1,76 @@
+/* ==========================================
+   APP MAIN / ESTRUCTURA
+   ========================================== */
+.app-container { display: flex; height: 100vh; width: 100vw; }
+.sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+.sidebar-top { display: flex; flex-direction: column; }
+.sidebar-brand { height: 70px; display: flex; align-items: center; gap: 10px; padding: 0 1.5rem; border-bottom: 1px solid var(--border-color); }
+.brand-title { font-weight: 700; font-size: 18px; color: var(--text-primary); }
+.brand-icon { color: var(--accent-blue); }
+.brand-sub { font-size: 9px; color: var(--text-secondary); margin-top: 4px; letter-spacing: 0.5px; }
+.sidebar-actions { padding: 1.5rem; }
+.btn-new-sim { width: 100%; background-color: var(--accent-blue); color: #FFF; border: none; padding: 0.8rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; gap: 8px; align-items: center; }
+.btn-new-sim:hover { background-color: #0076e5; }
+.sidebar-nav { padding: 0 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; border-radius: 8px; transition: 0.2s; font-weight: 500; }
+.nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
+.nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+.nav-item.active { background-color: rgba(10,132,255,0.15); color: var(--accent-blue); }
+.sidebar-footer { padding: 1.5rem 1rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.25rem; }
+.logout { color: var(--danger-red); cursor: pointer; }
+.logout:hover { background: rgba(255,69,58,0.1); color: #FF4D6D; }
+.app-info { padding: 1rem 1rem 0; font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5; }
+
+/* ESPACIO DE TRABAJO */
+.main-workspace { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 70px; background-color: var(--bg-sidebar); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; flex-shrink: 0; }
+.breadcrumbs { font-size: 0.9rem; color: var(--text-secondary); }
+.breadcrumb-current { color: var(--text-primary); font-weight: 600; }
+.separator { font-size: 0.6rem; margin: 0 0.5rem; }
+.topbar-right { display: flex; align-items: center; gap: 1.25rem; }
+.tool-btn { background: none; border: none; font-size: 1.2rem; color: var(--text-secondary); cursor: pointer; position: relative; }
+.tool-btn:hover { color: var(--text-primary); }
+.avatar-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-secondary); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
+.avatar-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+.content-area { flex: 1; padding: 2rem 3rem; overflow-y: auto; }
+
+/* ==========================================
+   ESTILOS COMPARTIDOS (Tarjetas y Botones)
+   ========================================== */
+.card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
+.header-titles h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+.header-titles p { color: var(--text-secondary); font-size: 0.95rem; max-width: 700px; line-height: 1.5; }
+.btn-primary { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;}
+.btn-secondary, .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-secondary:hover { background: rgba(255,255,255,0.05); }
+.btn-filled { background: var(--accent-blue); border: none; color: #FFF; padding: 0.6rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+/* ==========================================
+   VISTA 2: ANÁLISIS DE PACIENTES
+   ========================================== */
+.analytics-mini-card { padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+.card-top-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px; display: block;}
+.text-green { color: var(--node-safe); }
+.text-red { color: var(--danger-red); }
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+.analytics-panel h3 { font-size: 13px; margin-bottom: 24px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+.progress-row { margin-bottom: 18px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+.progress-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.fill-safe { background: var(--node-safe); }
+.fill-warning { background: var(--node-warning); }
+.fill-critical { background: var(--danger-red); }
+.analytics-footnote { font-size: 11px; color: var(--text-secondary); margin-top: 24px; line-height: 1.5; font-style: italic;}
+
+.proc-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;}
+.proc-stat-card { border: 1px solid var(--border-color); border-radius: 8px; padding: 20px 16px; text-align: center; background: var(--bg-main); }
+.proc-stat-card h4 { font-size: 10px; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;}
+.proc-stat-card .val { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.proc-stat-card .sub { font-size: 11px; color: var(--text-secondary); font-weight: 600;}
+.analytics-insight { background: rgba(10, 132, 255, 0.1); border: 1px solid rgba(10,132,255,0.2); border-radius: 8px; padding: 16px; font-size: 12px; color: var(--text-primary); display: flex; gap: 12px; line-height: 1.6;}
+.analytics-insight i { color: var(--accent-blue); font-size: 16px; margin-top: 2px;}
+
+/* Acciones del historial */
+.header-actions { display: flex; gap: 1rem; }
