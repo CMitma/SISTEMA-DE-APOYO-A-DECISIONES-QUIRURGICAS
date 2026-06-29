@@ -1,0 +1,30 @@
+/* ==========================================
+   NOTIFICACIONES
+   ========================================== */
+.notif-wrapper { position: relative; }
+.notif-badge { position: absolute; top: -4px; right: -4px; background: var(--danger-red); color: white; font-size: 0.6rem; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+.notif-dropdown { position: absolute; top: 150%; right: -60px; width: 340px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 100; transition: 0.2s; }
+.notif-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; }
+.notif-header h3 { font-size: 1.1rem; font-weight: 700; }
+.notif-options-wrapper { position: relative; }
+.icon-btn-small { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; color: var(--text-primary); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.icon-btn-small:hover { background: rgba(255,255,255,0.1); }
+.notif-options-menu { position: absolute; right: 0; top: 100%; margin-top: 8px; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); z-index: 101; width: 220px; }
+.notif-options-menu button { width: 100%; text-align: left; background: none; border: none; padding: 0.5rem; color: var(--text-primary); cursor: pointer; border-radius: 4px; font-family: var(--font-main); font-size: 0.85rem;}
+.notif-options-menu button:hover { background: var(--bg-main); color: var(--accent-blue); }
+
+.notif-filters { padding: 0 1rem 0.5rem; display: flex; gap: 0.5rem; }
+.filter-pill { padding: 0.4rem 0.8rem; border-radius: 20px; border: none; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: var(--bg-main); color: var(--text-secondary); }
+.filter-pill.active { background: rgba(10,132,255,0.1); color: var(--accent-blue); }
+.notif-list-header { padding: 0.5rem 1rem; display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; }
+.view-all-link { color: var(--accent-blue); text-decoration: none; }
+.notif-list { max-height: 380px; overflow-y: auto; padding-bottom: 0.5rem; }
+.notif-item { display: flex; gap: 1rem; padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+.notif-item:hover { background: var(--bg-main); }
+.notif-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+.bg-critical { background: rgba(255,69,58,0.1); color: var(--danger-red); }
+.bg-safe { background: rgba(48,209,88,0.1); color: var(--node-safe); }
+.notif-content { font-size: 0.8rem; color: var(--text-secondary); }
+.notif-time { display: block; color: var(--accent-blue); font-weight: 600; margin-top: 0.25rem; }
+.notif-unread-dot { width: 8px; height: 8px; background: var(--accent-blue); border-radius: 50%; margin-top: 0.5rem; opacity: 0; }
+.notif-item.unread .notif-unread-dot { opacity: 1; }
