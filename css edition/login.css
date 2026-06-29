@@ -1,0 +1,52 @@
+:root {
+    --bg-main: #0F172A;
+    --bg-sidebar: #0B1120;
+    --bg-surface: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --accent-blue: #0A84FF;
+    --danger-red: #FF453A;
+    --node-safe: #30D158;
+    
+    --border-color: #334155;
+    --node-warning: #FF9F0A;
+    --node-critical: #FF453A;
+    --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+    
+    --bg-modal: #1E293B;
+    --bg-aside-modal: #0B1120;
+    --text-primary-modal: #F8FAFC;
+    --text-secondary-modal: #94A3B8;
+    --border-modal: #334155;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font-main); background-color: var(--bg-main); color: var(--text-primary); height: 100vh; overflow: hidden; }
+.hidden { display: none !important; }
+
+/* ==========================================
+   PANTALLA DE LOGIN
+   ========================================== */
+.login-page { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--bg-main); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; color: var(--text-primary); }
+.login-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 440px; }
+.login-header { text-align: center; }
+.logo-box { background-color: var(--bg-surface); width: 64px; height: 64px; border-radius: 12px; display: flex; justify-content: center; align-items: center; margin: 0 auto 16px auto; border: 1px solid var(--border-color); }
+.logo-icon { color: var(--accent-blue); font-size: 28px; }
+.login-header h1 { color: var(--text-primary); font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.login-header .subtitle { color: var(--text-secondary); font-size: 14px; }
+.login-card { background-color: var(--bg-surface); width: 100%; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); border-top: 4px solid var(--accent-blue); border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+.simulator-status-alert { background-color: rgba(10, 132, 255, 0.1); color: var(--accent-blue); padding: 12px; border-radius: 8px; font-size: 12px; display: flex; gap: 10px; align-items: center; margin-bottom: 20px; border: 1px solid rgba(10, 132, 255, 0.3); }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.5px; margin-bottom: 8px; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.field-icon { position: absolute; left: 14px; color: var(--text-secondary); font-size: 14px; }
+.input-wrapper input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; color: var(--text-primary); background-color: var(--bg-main); transition: all 0.2s ease; outline: none; }
+.input-wrapper input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2); }
+.btn-submit { width: 100%; padding: 14px; background-color: var(--accent-blue); color: #ffffff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background-color 0.2s ease; margin-top: 24px; }
+.btn-submit:hover { background-color: #0076e5; }
+.card-footer { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 24px; }
+.footer-link, .footer-link-register { font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: color 0.2s ease; }
+.footer-link:hover, .footer-link-register:hover { color: var(--accent-blue); }
+.security-notice { display: flex; gap: 12px; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; width: 100%; }
+.notice-icon-box { color: var(--text-secondary); font-size: 18px; padding-top: 2px; }
+.notice-text p { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
