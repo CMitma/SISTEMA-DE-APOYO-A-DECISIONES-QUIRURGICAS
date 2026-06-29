@@ -1,393 +1,457 @@
-document.addEventListener('DOMContentLoaded', () => {
-
-    // ==========================================
-    // ESTADO GLOBAL (Base de Datos Local)
-    // ==========================================
-    const state = {
-        simulations: [
-            { id: "SIM-2023-0892", date: "24 Oct 2023, 08:30", patientId: "PT-9921", patientName: "Armando Cisneros", riskLvl: "SEGURO", riskScore: 12, timeEst: "3h 45m", operation: "Bypass Coronario (Complejidad Espacial)" },
-            { id: "SIM-2023-0891", date: "24 Oct 2023, 07:15", patientId: "PT-8344", patientName: "Graciela Montenegro", riskLvl: "CRÍTICO", riskScore: 78, timeEst: "5h 20m", operation: "Trasplante Cardiaco de Alta Complex" }
-        ]
-    };
-
-    // ==========================================
-    // FLUJO DEL LOGIN Y ENRUTAMIENTO (SPA)
-    // ==========================================
-    const loginScreen = document.getElementById('login-screen');
-    const appMain = document.getElementById('appMain');
-    const loginForm = document.getElementById('loginForm');
-    const btnLogout = document.getElementById('btnLogout');
-
-    const navSimulacion = document.getElementById('nav-simulacion');
-    const navAnalisis = document.getElementById('nav-analisis');
-    const navHistorial = document.getElementById('nav-historial');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet Quirúrgico - CardioSupport AI</title>
+    <link rel="stylesheet" href="cardio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
     
-    const vistaSimulacion = document.getElementById('vista-simulacion');
-    const vistaAnalisis = document.getElementById('vista-analisis');
-    const vistaHistorial = document.getElementById('vista-historial');
-    
-    const breadcrumbActual = document.getElementById('breadcrumb-actual');
+    <div id="login-screen" class="login-page">
+        <div class="login-wrapper">
+            <header class="login-header">
+                <div class="logo-box">
+                    <i class="fa-solid fa-heart logo-icon"></i>
+                </div>
+                <h1>CardioSupport AI</h1>
+                <p class="subtitle">Módulo de Simulación de Quirófano v2.4.1</p>
+            </header>
 
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        loginScreen.classList.add('hidden');
-        appMain.classList.remove('hidden');
-        resetLogoutTimer();
-        actualizarVistas(); // Renderizar tablas al iniciar
-    });
+            <main class="login-card">
+                <div class="simulator-status-alert">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <div>
+                        <strong>Estado del Sistema:</strong> Listo para cargar escenario cardiovascular de 1,500 nodos con isquemia interactiva.
+                    </div>
+                </div>
 
-    btnLogout.addEventListener('click', (e) => {
-        e.preventDefault();
-        appMain.classList.add('hidden');
-        loginScreen.classList.remove('hidden');
-        loginForm.reset();
-        clearTimeout(logoutTimer);
-    });
+                <form id="loginForm" novalidate>
+                    <div class="input-group">
+                        <label for="email">IDENTIFICADOR DE QUIRÓFANO</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-hospital field-icon"></i>
+                            <input type="text" id="email" placeholder="Ej: Q-OR-04" required>
+                        </div>
+                    </div>
 
-    function resetViews() {
-        navSimulacion.classList.remove('active');
-        navAnalisis.classList.remove('active');
-        navHistorial.classList.remove('active');
-        vistaSimulacion.classList.add('hidden');
-        vistaAnalisis.classList.add('hidden');
-        vistaHistorial.classList.add('hidden');
-    }
+                    <div class="input-group">
+                        <label for="surgeonCode">TOKEN DE AUTORIZACIÓN CLÍNICA</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-shield-heart field-icon"></i>
+                            <input type="password" id="surgeonCode" placeholder="Ingresa clave de simulación" required>
+                        </div>
+                    </div>
 
-    navSimulacion.addEventListener('click', (e) => {
-        e.preventDefault(); resetViews();
-        navSimulacion.classList.add('active');
-        vistaSimulacion.classList.remove('hidden');
-        breadcrumbActual.textContent = "Simulación Quirúrgica";
-    });
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-play"></i> INICIAR ESCENARIO QUIRÚRGICO
+                    </button>
+                </form>
+                <footer class="card-footer">
+                    <a href="#" class="footer-link">Ver manual de contingencia</a>
+                    <a href="#" class="footer-link-register">Configurar nuevo hardware</a>
+                </footer>
+            </main>
 
-    navAnalisis.addEventListener('click', (e) => {
-        e.preventDefault(); resetViews();
-        navAnalisis.classList.add('active');
-        vistaAnalisis.classList.remove('hidden');
-        breadcrumbActual.textContent = "Análisis de Pacientes";
-    });
+            <section class="security-notice">
+                <div class="notice-icon-box">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="notice-text">
+                    <p><strong>Modo de Pruebas Clínicas:</strong> Los datos generados alimentan el algoritmo de optimización espacial para Bypass Coronario.</p>
+                </div>
+            </section>
+        </div>
+    </div>
 
-    navHistorial.addEventListener('click', (e) => {
-        e.preventDefault(); resetViews();
-        navHistorial.classList.add('active');
-        vistaHistorial.classList.remove('hidden');
-        breadcrumbActual.textContent = "Historial de Procedimientos";
-    });
-
-
-    // ==========================================
-    // LÓGICA DE SIMULACIÓN Y ACTUALIZACIÓN
-    // ==========================================
-    const btnConcluirSim = document.getElementById('btn-concluir-sim');
-    const btnNuevaSimSidebar = document.getElementById('btn-nueva-sim-sidebar');
-    const btnReiniciarSim = document.getElementById('btn-reiniciar-sim');
-    
-    const inputPaciente = document.getElementById('buscar-paciente');
-    const lblPacienteId = document.getElementById('lbl-paciente-id');
-    const selectOperacion = document.getElementById('select-operacion');
-
-    // UI de simulación (telemetría)
-    const valFc = document.getElementById('val-fc');
-    const valPa = document.getElementById('val-pa');
-    const valRiskScore = document.getElementById('val-risk-score');
-    const riskBarFill = document.getElementById('risk-bar-fill');
-
-    function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-    function generarNuevaSimulacion() {
-        // Generar datos aleatorios simples para la vista
-        inputPaciente.value = "";
-        lblPacienteId.textContent = `PT-${randomInt(1000, 9999)}`;
-        selectOperacion.selectedIndex = 0;
+    <div class="app-container hidden" id="appMain">
         
-        let newRisk = randomInt(2, 85);
-        valFc.textContent = randomInt(60, 100);
-        valPa.textContent = `${randomInt(110, 140)}/${randomInt(70, 90)}`;
-        
-        valRiskScore.textContent = `${newRisk}%`;
-        riskBarFill.style.width = `${newRisk}%`;
-        
-        if (newRisk > 70) riskBarFill.style.backgroundColor = "var(--danger-red)";
-        else if (newRisk > 30) riskBarFill.style.backgroundColor = "var(--node-warning)";
-        else riskBarFill.style.backgroundColor = "var(--node-safe)";
-        
-        navSimulacion.click(); // Navegar a la simulación
-    }
-
-    btnNuevaSimSidebar.addEventListener('click', generarNuevaSimulacion);
-    btnReiniciarSim.addEventListener('click', generarNuevaSimulacion);
-
-    btnConcluirSim.addEventListener('click', () => {
-        let riskScore = parseInt(valRiskScore.textContent);
-        let riskLvl = riskScore > 70 ? "CRÍTICO" : (riskScore > 30 ? "CAUTELOSO" : "SEGURO");
-        
-        // Crear objeto de simulación
-        let nuevaSim = {
-            id: `SIM-2023-0${randomInt(900, 999)}`,
-            date: new Date().toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-            patientId: lblPacienteId.textContent,
-            patientName: inputPaciente.value || "Paciente Anónimo",
-            riskLvl: riskLvl,
-            riskScore: riskScore,
-            timeEst: `${randomInt(2, 6)}h ${randomInt(10, 50)}m`,
-            operation: selectOperacion.value
-        };
-
-        // Guardar en el array (al principio)
-        state.simulations.unshift(nuevaSim);
-        
-        alert(`Simulación ${nuevaSim.id} concluida con éxito y registrada en el sistema.`);
-        actualizarVistas();
-    });
-
-    function actualizarVistas() {
-        renderHistorial();
-        renderAnalisis();
-    }
-
-    function renderHistorial() {
-        const tbody = document.getElementById('historial-tbody');
-        tbody.innerHTML = '';
-        
-        let criticos = 0;
-        
-        state.simulations.forEach(sim => {
-            if (sim.riskLvl === "CRÍTICO") criticos++;
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="brand-title"><i class="fa-solid fa-heart brand-icon"></i> CardioSupport AI</div>
+                    <div class="brand-sub">SOPORTE QUIRÚRGICO DE PRECISIÓN</div>
+                </div>
+                
+                <div class="sidebar-actions">
+                    <button class="btn-new-sim" id="btn-nueva-sim-sidebar"><i class="fa-solid fa-plus"></i> NUEVA SIMULACIÓN</button>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" id="nav-simulacion">
+                        <i class="fa-solid fa-wave-square"></i> Simulación Quirúrgica
+                    </a>
+                    <a href="#" class="nav-item" id="nav-analisis">
+                        <i class="fa-solid fa-chart-simple"></i> Análisis de Pacientes
+                    </a>
+                    <a href="#" class="nav-item" id="nav-historial">
+                        <i class="fa-solid fa-file-lines"></i> Historial de Procedimientos
+                    </a>
+                </nav>
+            </div>
             
-            let badgeClass = sim.riskLvl === "SEGURO" ? "badge-safe" : (sim.riskLvl === "CRÍTICO" ? "badge-critical" : "badge-warning");
+            <div class="sidebar-footer">
+                <a href="#" class="nav-item"><i class="fa-solid fa-life-ring"></i> Soporte Técnico</a>
+                <a href="#" id="btnLogout" class="nav-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión</a>
+                <div class="app-info">
+                    <p>Versión 2.4.1</p>
+                    <p>Sincronización en la Nube Activa</p>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-workspace">
             
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${sim.id}</strong></td>
-                <td>${sim.date}</td>
-                <td><strong>${sim.patientId}</strong> ${sim.patientName}</td>
-                <td><span class="badge ${badgeClass}"><i class="fa-solid fa-circle"></i> ${sim.riskLvl}</span></td>
-                <td>${sim.timeEst} / ${sim.riskScore}% risk</td>
-                <td class="actions-cell"><i class="fa-regular fa-eye"></i> <i class="fa-regular fa-file-lines"></i></td>
-            `;
-            tbody.appendChild(tr);
-        });
+            <header class="topbar">
+                <div class="breadcrumbs">
+                    <span class="breadcrumb-root">CardioSupport AI</span>
+                    <i class="fa-solid fa-chevron-right separator"></i>
+                    <span class="breadcrumb-current" id="breadcrumb-actual">Simulación Quirúrgica</span>
+                </div>
+                
+                <div class="topbar-right topbar-tools">
+                    <div class="notif-wrapper" id="notif-wrapper">
+                        <button class="tool-btn" id="btn-notificaciones">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="notif-badge" id="notif-badge-count">2</span>
+                        </button>
+                        
+                        <div class="notif-dropdown hidden" id="notif-dropdown">
+                            <div class="notif-header">
+                                <h3>Notificaciones</h3>
+                                <div class="notif-options-wrapper">
+                                    <button class="icon-btn-small" id="btn-notif-options"><i class="fa-solid fa-ellipsis"></i></button>
+                                    <div class="notif-options-menu hidden" id="notif-options-menu">
+                                        <button id="btn-mark-all-read"><i class="fa-solid fa-check-double"></i> Marcar todas como leídas</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="notif-filters">
+                                <button class="filter-pill active" id="filter-all">Todas</button>
+                                <button class="filter-pill" id="filter-unread">No leídas</button>
+                            </div>
+                            <div class="notif-list-header">
+                                <span>Nuevas</span><a href="#" class="view-all-link">Ver todo</a>
+                            </div>
+                            <div class="notif-list" id="notif-list-container">
+                                <div class="notif-item unread critical-alert">
+                                    <div class="notif-icon bg-critical"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                    <div class="notif-content"><p><strong>Alerta Crítica:</strong> Paciente PT-8344 arroja score del 78%.</p><span class="notif-time">Hace 10 min</span></div>
+                                    <div class="notif-unread-dot"></div>
+                                </div>
+                                <div class="notif-item unread standard-alert">
+                                    <div class="notif-icon bg-safe"><i class="fa-solid fa-check-double"></i></div>
+                                    <div class="notif-content"><p><strong>Simulación completada:</strong> Modelo evaluado con éxito.</p><span class="notif-time">Hace 2 horas</span></div>
+                                    <div class="notif-unread-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-        document.getElementById('hist-total').textContent = state.simulations.length;
-        document.getElementById('hist-criticos').textContent = criticos;
-    }
+                    <button class="tool-btn" id="btn-configuracion"><i class="fa-solid fa-gear"></i></button>
+                    <button class="avatar-btn" id="btn-avatar-perfil"><i class="fa-regular fa-user"></i></button>
+                </div>
+            </header>
 
-    function renderAnalisis() {
-        let total = state.simulations.length;
-        if (total === 0) return;
+            <main class="content-area">
+                
+                <div id="vista-simulacion">
+                    <section class="card simulation-hero">
+                        <div class="hero-text">
+                            <h2>Simulación de Quirófano en Vivo</h2>
+                            <p>Modela escenarios cardiovasculares mediante grafos de toma de decisiones de 1,500 nodos, isquemia, y algoritmos de optimización.</p>
+                        </div>
+                        <div class="hero-actions">
+                            <button class="btn-secondary" id="btn-reiniciar-sim"><i class="fa-solid fa-rotate-right"></i> Reiniciar</button>
+                            <button class="btn-primary" id="btn-concluir-sim">Concluir Simulación</button>
+                        </div>
+                    </section>
 
-        let totalRisk = 0;
-        let cSafe = 0, cWarn = 0, cCrit = 0;
-        let cBypass = 0, cTrans = 0, cValv = 0;
+                    <section class="patient-info-grid">
+                        <div class="info-card">
+                            <label for="buscar-paciente">BUSCAR PACIENTE (ESCRIBE NOMBRE)</label>
+                            <div class="info-value-box">
+                                <input type="text" id="buscar-paciente" list="lista-pacientes" class="medical-search-input" placeholder="Escriba para buscar..." value="Mariano Valenzuela">
+                                <datalist id="lista-pacientes">
+                                    <option value="Mariano Valenzuela">
+                                    <option value="Elena Rostova">
+                                    <option value="Carlos Mendoza">
+                                    <option value="Andrea Silva">
+                                </datalist>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <label>ID CLÍNICO</label>
+                            <div class="info-value-box">
+                                <span id="lbl-paciente-id" class="highlight-id">PT-7724</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <label for="select-operacion">INTERVENCIÓN DE ALTA COMPLEJIDAD</label>
+                            <div class="info-value-box">
+                                <select id="select-operacion" class="medical-select">
+                                    <option value="Bypass Coronario (Complejidad Espacial)" selected>Bypass Coronario (Complejidad Espacial)</option>
+                                    <option value="Reemplazo de Válvula Aórtica (TAVI)">Reemplazo de Válvula Aórtica (TAVI)</option>
+                                    <option value="Trasplante Cardiaco de Alta Complex">Trasplante Cardiaco de Alta Complex</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
 
-        state.simulations.forEach(sim => {
-            totalRisk += sim.riskScore;
-            if (sim.riskLvl === "SEGURO") cSafe++;
-            else if (sim.riskLvl === "CRÍTICO") cCrit++;
-            else cWarn++;
+                    <section class="card telemetry-panel">
+                        <header class="telemetry-header">
+                            <div class="telemetry-title"><i class="fa-solid fa-satellite-dish"></i> TELEMETRÍA QUIRÚRGICA</div>
+                            <span class="badge-active">MONITOR ACTIVO</span>
+                        </header>
+                        <div class="telemetry-content">
+                            <div class="ecg-container">
+                                <svg class="ecg-wave" viewBox="0 0 800 100" preserveAspectRatio="none">
+                                    <path d="M0,50 L200,50 L210,40 L220,50 L230,50 L240,20 L250,90 L260,50 L270,50 L280,55 L290,50 L500,50 L510,35 L520,50 L530,50 L540,15 L550,95 L560,50 L570,50 L580,55 L590,50 L800,50" 
+                                          fill="none" stroke="#30D158" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="metrics-grid">
+                                <div class="metric-box">
+                                    <span class="metric-label">FRECUENCIA CARDÍACA</span>
+                                    <span class="metric-value" id="val-fc">72</span> <span class="metric-unit">lpm</span>
+                                </div>
+                                <div class="metric-box">
+                                    <span class="metric-label">PRESIÓN ARTERIAL</span>
+                                    <span class="metric-value" id="val-pa">124/85</span> <span class="metric-unit">mmHg</span>
+                                </div>
+                                <div class="metric-box">
+                                    <span class="metric-label">SUSTENTACIÓN O2 (SPO2)</span>
+                                    <span class="metric-value" id="val-spo2">100%</span>
+                                </div>
+                                <div class="metric-box">
+                                    <span class="metric-label">PINZAMIENTO CLÍNICO</span>
+                                    <span class="metric-value" id="val-pinz">0</span> <span class="metric-unit">min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section class="card risk-section">
+                        <div class="risk-header">
+                            <span><i class="fa-solid fa-triangle-exclamation"></i> SCORE DE RIESGO PERIOPERATORIO</span>
+                            <strong id="val-risk-score">4%</strong>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="risk-bar-fill" style="width: 4%; background-color: var(--node-safe);"></div>
+                        </div>
+                        <p class="risk-footer">Estabilidad hemodinámica monitorizada (Grafos estables)</p>
+                    </section>
+                </div>
 
-            if (sim.operation.includes("Bypass")) cBypass++;
-            else if (sim.operation.includes("Trasplante")) cTrans++;
-            else cValv++;
-        });
+                <div id="vista-analisis" class="hidden">
+                    <div class="page-header">
+                        <div class="header-titles">
+                            <h1>Patient Analytics</h1>
+                            <p>Análisis demográfico, categorización de riesgos clínicos y distribución operativa basada en el total acumulado de simulaciones.</p>
+                        </div>
+                    </div>
 
-        let avgRisk = Math.round(totalRisk / total);
-        let success = total - cCrit; // Lógica simple de éxito
+                    <div class="summary-cards" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="card analytics-mini-card">
+                            <span class="card-top-label">TOTAL SIMULACIONES REALIZADAS</span>
+                            <div class="card-value" id="ana-total-sim">0</div>
+                            <span class="card-bottom text-green" id="ana-nuevas-hoy">+0 agregadas hoy</span>
+                        </div>
+                        <div class="card analytics-mini-card">
+                            <span class="card-top-label">PROBABILIDAD MEDIA DE RIESGO</span>
+                            <div class="card-value" id="ana-avg-risk">0%</div>
+                            <span class="card-bottom">Rango controlado perioperatorio</span>
+                        </div>
+                        <div class="card analytics-mini-card">
+                            <span class="card-top-label">RIESGOS CRÍTICOS ACTIVOS</span>
+                            <div class="card-value text-red" id="ana-critical">0</div>
+                            <span class="card-bottom text-red" id="ana-critical-pct">0% del total quirúrgico</span>
+                        </div>
+                        <div class="card analytics-mini-card">
+                            <span class="card-top-label">CASOS DE ÉXITO CLÍNICO</span>
+                            <div class="card-value text-green" id="ana-success">0</div>
+                            <span class="card-bottom text-green" id="ana-success-pct">0% total de supervivencia</span>
+                        </div>
+                    </div>
 
-        // Top Cards
-        document.getElementById('ana-total-sim').textContent = total;
-        document.getElementById('ana-nuevas-hoy').textContent = `+${total - 2} agregadas hoy`;
-        document.getElementById('ana-avg-risk').textContent = `${avgRisk}%`;
-        document.getElementById('ana-critical').textContent = cCrit;
-        document.getElementById('ana-critical-pct').textContent = `${Math.round((cCrit/total)*100)}% del total quirúrgico`;
-        document.getElementById('ana-success').textContent = success;
-        document.getElementById('ana-success-pct').textContent = `${Math.round((success/total)*100)}% total de supervivencia`;
+                    <div class="analytics-grid">
+                        <div class="card analytics-panel">
+                            <h3><i class="fa-solid fa-list-ul"></i> DISTRIBUCIÓN DE NIVELES DE RIESGO QUIRÚRGICO</h3>
+                            
+                            <div class="progress-row">
+                                <div class="progress-label"><span>SEGURO (Bajo Complejo)</span><span id="ana-bar-safe-txt">0 casos (0%)</span></div>
+                                <div class="progress-track"><div class="progress-fill fill-safe" id="ana-bar-safe"></div></div>
+                            </div>
+                            
+                            <div class="progress-row">
+                                <div class="progress-label"><span>CAUTELOSO (Moderado/Vaporizador)</span><span id="ana-bar-warn-txt">0 casos (0%)</span></div>
+                                <div class="progress-track"><div class="progress-fill fill-warning" id="ana-bar-warn"></div></div>
+                            </div>
+                            
+                            <div class="progress-row">
+                                <div class="progress-label"><span>CRÍTICO (Intervención Extrema)</span><span id="ana-bar-crit-txt">0 casos (0%)</span></div>
+                                <div class="progress-track"><div class="progress-fill fill-critical" id="ana-bar-crit"></div></div>
+                            </div>
+                            
+                            <p class="analytics-footnote">*La ponderación asintótica asigna un peso mayor a las complicaciones de tipo "taponamiento coronario agudo" o "fibrilación refractaria", recortando las decisiones viables según el modelo de Backtracking dinámico con poda.</p>
+                        </div>
 
-        // Barras de Progreso
-        document.getElementById('ana-bar-safe').style.width = `${(cSafe/total)*100}%`;
-        document.getElementById('ana-bar-safe-txt').textContent = `${cSafe} casos (${Math.round((cSafe/total)*100)}%)`;
-        
-        document.getElementById('ana-bar-warn').style.width = `${(cWarn/total)*100}%`;
-        document.getElementById('ana-bar-warn-txt').textContent = `${cWarn} casos (${Math.round((cWarn/total)*100)}%)`;
-        
-        document.getElementById('ana-bar-crit').style.width = `${(cCrit/total)*100}%`;
-        document.getElementById('ana-bar-crit-txt').textContent = `${cCrit} casos (${Math.round((cCrit/total)*100)}%)`;
+                        <div class="card analytics-panel">
+                            <h3><i class="fa-solid fa-chart-line"></i> DISTRIBUCIÓN DE PROCEDIMIENTOS POR ESPECIALIDAD</h3>
+                            
+                            <div class="proc-stats-grid">
+                                <div class="proc-stat-card">
+                                    <h4>BYPASS CORONARIO</h4>
+                                    <div class="val" id="ana-proc-bypass">0</div>
+                                    <div class="sub">O(V+E)</div>
+                                </div>
+                                <div class="proc-stat-card">
+                                    <h4>TRASPLANTE CARDIACO</h4>
+                                    <div class="val" id="ana-proc-trasplante">0</div>
+                                    <div class="sub">Alta Complex</div>
+                                </div>
+                                <div class="proc-stat-card">
+                                    <h4>REEMPLAZO VALVULAR</h4>
+                                    <div class="val" id="ana-proc-valvula">0</div>
+                                    <div class="sub">Preservación</div>
+                                </div>
+                            </div>
 
-        // Procedimientos
-        document.getElementById('ana-proc-bypass').textContent = cBypass;
-        document.getElementById('ana-proc-trasplante').textContent = cTrans;
-        document.getElementById('ana-proc-valvula').textContent = cValv;
-    }
+                            <div class="analytics-insight">
+                                <i class="fa-solid fa-heart"></i>
+                                <div><strong>Estratificación de Riesgos:</strong> Las cirugías valvulares de preservación registran las mayores tasas de éxito, mientras que los trasplantes completos requieren un arresto mediante cardioplejía profundo e isquemia controlada para mitigar la falla de conducto.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <div id="vista-historial" class="hidden">
+                    <div class="page-header">
+                        <div class="header-titles">
+                            <h1>Historial de Simulaciones</h1>
+                            <p>Registro auditable de modelos predictivos y evaluaciones de riesgo operativo. Realice un seguimiento exhaustivo de isquemias y costes.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-outline"><i class="fa-solid fa-filter"></i> Filtro: Todos logs</button>
+                            <button class="btn-filled"><i class="fa-solid fa-download"></i> Exportar Lote PDF</button>
+                        </div>
+                    </div>
 
-    // ==========================================
-    // MODAL PERFIL MÉDICO
-    // ==========================================
-    const modalMedico = document.getElementById('modal-medico');
-    const btnAvatarPerfil = document.getElementById('btn-avatar-perfil');
-    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
-    
-    const formContainer = document.getElementById('profile-form');
-    const btnModificar = document.getElementById('btn-modificar');
-    const btnGuardar = document.getElementById('btn-guardar');
-    const btnCancelar = document.getElementById('btn-cancelar');
-    const inputs = document.querySelectorAll('.data-input');
-    const STORAGE_KEY = 'doctor_profile_data';
-    
-    function populateFields() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if(stored) {
-            const data = JSON.parse(stored);
-            document.getElementById('input-nombres').value = data.nombres;
-            document.getElementById('input-apellidos').value = data.apellidos;
-            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
-        }
-        inputs.forEach(i => i.classList.remove('error'));
-    }
+                    <div class="summary-cards">
+                        <div class="card card-green">
+                            <div class="card-top"><span>SIMULACIONES (30 DÍAS)</span><i class="fa-regular fa-file-lines"></i></div>
+                            <div class="card-value" id="hist-total">0</div>
+                            <div class="card-bottom text-green">+12% vs mes anterior</div>
+                        </div>
+                        <div class="card card-red">
+                            <div class="card-top"><span>RIESGOS CRÍTICOS DETECTADOS</span><i class="fa-solid fa-triangle-exclamation text-red"></i></div>
+                            <div class="card-value" id="hist-criticos">0</div>
+                            <div class="card-bottom">Requieren validación manual inmediata</div>
+                        </div>
+                        <div class="card card-blue">
+                            <div class="card-top"><span>PRECISIÓN ALGORÍTMICA</span><i class="fa-solid fa-shield-halved text-blue"></i></div>
+                            <div class="card-value">99.4%</div>
+                            <div class="card-bottom">Basado en operaciones clínicas</div>
+                        </div>
+                    </div>
 
-    function toggleEditMode(isEditing) {
-        if (isEditing) {
-            formContainer.classList.add('is-editing');
-            btnModificar.style.display = 'none';
-            btnGuardar.style.display = 'inline-block';
-            btnCancelar.style.display = 'inline-block';
-            inputs.forEach(i => i.removeAttribute('readonly'));
-        } else {
-            formContainer.classList.remove('is-editing');
-            btnModificar.style.display = 'inline-block';
-            btnGuardar.style.display = 'none';
-            btnCancelar.style.display = 'none';
-            inputs.forEach(i => { i.setAttribute('readonly', true); i.classList.remove('error'); });
-        }
-    }
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3>SIMULACIONES RECIENTES</h3>
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Buscar ID de paciente o simulación">
+                            </div>
+                        </div>
+                        <table class="data-table" id="main-data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID SIMULACIÓN</th>
+                                    <th>FECHA / HORA</th>
+                                    <th>PACIENTE (ID / NOMBRE)</th>
+                                    <th>NIVEL DE RIESGO</th>
+                                    <th>TIEMPO EST. / SCORE</th>
+                                    <th>ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historial-tbody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    btnAvatarPerfil.addEventListener('click', () => { populateFields(); modalMedico.classList.remove('hidden'); });
-    btnCerrarModal.addEventListener('click', () => { modalMedico.classList.add('hidden'); toggleEditMode(false); });
-    btnModificar.addEventListener('click', () => toggleEditMode(true));
-    btnCancelar.addEventListener('click', () => { populateFields(); toggleEditMode(false); });
-    
-    btnGuardar.addEventListener('click', () => {
-        let isValid = true;
-        inputs.forEach(input => {
-            if(input.value.trim() === '') { isValid = false; input.classList.add('error'); }
-            else { input.classList.remove('error'); }
-        });
-        if (isValid) {
-            const data = {
-                nombres: document.getElementById('input-nombres').value,
-                apellidos: document.getElementById('input-apellidos').value
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
-            toggleEditMode(false);
-        } else {
-            alert("Todos los campos son obligatorios.");
-        }
-    });
+            </main>
+        </div>
+    </div>
 
-    // ==========================================
-    // PANEL NOTIFICACIONES
-    // ==========================================
-    const btnNotif = document.getElementById('btn-notificaciones');
-    const dropdown = document.getElementById('notif-dropdown');
-    const badge = document.getElementById('notif-badge-count');
-    const notifItems = document.querySelectorAll('.notif-item');
-    const filterAll = document.getElementById('filter-all');
-    const filterUnread = document.getElementById('filter-unread');
-    const btnOptions = document.getElementById('btn-notif-options');
-    const menuOptions = document.getElementById('notif-options-menu');
-    const btnMarkRead = document.getElementById('btn-mark-all-read');
+    <div class="modal-overlay hidden" id="modal-medico">
+        <div class="profile-container" id="profile-form">
+            <button class="btn-close-modal" id="btn-cerrar-modal"><i class="fa-solid fa-xmark"></i></button>
+            <section class="profile-aside">
+                <div class="avatar-placeholder"><i class="fa-solid fa-user-shield"></i><span>Fotografía</span></div>
+                <h1 class="doctor-name" id="modal-doctor-name">Dr. Alejandro Montenegro Solís</h1>
+                <span class="badge-specialty">Cirugía Cardiovascular</span>
+                <p class="profile-status"><span class="status-indicator"></span> Sesión Activa / Intranet</p>
+            </section>
+            <section class="profile-main">
+                <header class="section-header"><h2><i class="fa-solid fa-address-card"></i> Expediente del Profesional</h2></header>
+                <div class="info-grid">
+                    <div class="info-group"><label>Nombres</label><input type="text" id="input-nombres" value="Alejandro" readonly class="data-input"></div>
+                    <div class="info-group"><label>Apellidos</label><input type="text" id="input-apellidos" value="Montenegro Solís" readonly class="data-input"></div>
+                    <div class="info-group"><label>DNI</label><input type="text" id="input-dni" value="74721700" readonly class="data-input" maxlength="8"></div>
+                    <div class="info-group"><label>Fecha de Nacimiento</label><input type="text" id="input-fecha" value="12 de Abril de 1982" readonly class="data-input"></div>
+                    <div class="info-group"><label>N° de Colegiatura</label><input type="text" id="input-cmp" value="28280921" readonly class="data-input"></div>
+                    <div class="info-group"><label>Hospital</label><input type="text" id="input-hospital" value="Hospital General" readonly class="data-input"></div>
+                    <div class="info-group full-width"><label>Domicilio</label><input type="text" id="input-domicilio" value="Calle Mayor, 42" readonly class="data-input"></div>
+                </div>
+                <footer class="profile-actions">
+                    <button type="button" class="btn-profile btn-profile-secondary" id="btn-cancelar" style="display: none;">Cancelar</button>
+                    <button type="button" class="btn-profile btn-profile-secondary" id="btn-modificar"><i class="fa-solid fa-pen"></i> Modificar</button>
+                    <button type="button" class="btn-profile btn-profile-primary" id="btn-guardar" style="display: none;"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                </footer>
+            </section>
+        </div>
+    </div>
 
-    btnNotif.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); menuOptions.classList.add('hidden'); });
-    btnOptions.addEventListener('click', (e) => { e.stopPropagation(); menuOptions.classList.toggle('hidden'); });
-    
-    function updateNotifVisibility() {
-        const isUnreadFilter = filterUnread.classList.contains('active');
-        const showCriticalOnly = document.getElementById('check-alertas-criticas').checked;
-        
-        let visibleCount = 0;
-        notifItems.forEach(item => {
-            const isUnread = item.classList.contains('unread');
-            const isCritical = item.classList.contains('critical-alert');
-            
-            let shouldShow = true;
-            if (isUnreadFilter && !isUnread) shouldShow = false;
-            if (showCriticalOnly && !isCritical) shouldShow = false;
-            
-            item.style.display = shouldShow ? 'flex' : 'none';
-            if (isUnread && shouldShow && !showCriticalOnly) visibleCount++;
-            if (isUnread && showCriticalOnly && isCritical) visibleCount++;
-        });
-    }
+    <div class="config-overlay hidden" id="config-overlay"></div>
+    <div class="config-panel" id="config-panel">
+        <div class="config-header">
+            <h2><i class="fa-solid fa-sliders"></i> Configuración</h2>
+            <button class="btn-close-config" id="btn-cerrar-config"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="config-content">
+            <div class="config-section">
+                <h3>Interfaz y Visualización</h3>
+                <div class="config-row">
+                    <span>Densidad de Tablas</span>
+                    <select class="config-select" id="select-densidad">
+                        <option value="comoda">Cómoda</option>
+                        <option value="compacta">Compacta</option>
+                    </select>
+                </div>
+            </div>
+            <div class="config-section">
+                <h3>Alertas y Notificaciones</h3>
+                <div class="config-row">
+                    <span>Recibir solo Riesgos Críticos (>70%)</span>
+                    <label class="switch"><input type="checkbox" id="check-alertas-criticas"><span class="slider round"></span></label>
+                </div>
+            </div>
+            <div class="config-section">
+                <h3>Seguridad de Sesión</h3>
+                <div class="config-row">
+                    <span>Cierre automático por inactividad</span>
+                    <select class="config-select" id="select-inactividad">
+                        <option value="15">15 minutos</option>
+                        <option value="30">30 minutos</option>
+                        <option value="60">1 hora</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    filterAll.addEventListener('click', (e) => { e.stopPropagation(); filterAll.classList.add('active'); filterUnread.classList.remove('active'); updateNotifVisibility(); });
-    filterUnread.addEventListener('click', (e) => { e.stopPropagation(); filterUnread.classList.add('active'); filterAll.classList.remove('active'); updateNotifVisibility(); });
-
-    btnMarkRead.addEventListener('click', (e) => {
-        e.stopPropagation();
-        notifItems.forEach(i => i.classList.remove('unread'));
-        badge.style.display = 'none';
-        menuOptions.classList.add('hidden');
-        updateNotifVisibility();
-    });
-
-    notifItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.stopPropagation();
-            if(this.classList.contains('unread')) {
-                this.classList.remove('unread');
-                let c = parseInt(badge.textContent);
-                if(c > 0) { c--; badge.textContent = c; if(c===0) badge.style.display = 'none'; }
-                updateNotifVisibility();
-            }
-            dropdown.classList.add('hidden');
-        });
-    });
-
-    // ==========================================
-    // CONFIGURACIÓN
-    // ==========================================
-    const btnConfig = document.getElementById('btn-configuracion');
-    const configPanel = document.getElementById('config-panel');
-    const configOverlay = document.getElementById('config-overlay');
-    const btnCloseConfig = document.getElementById('btn-cerrar-config');
-    const selectDensidad = document.getElementById('select-densidad');
-    const mainTable = document.getElementById('main-data-table');
-    const checkAlertasCriticas = document.getElementById('check-alertas-criticas');
-    const selectInactividad = document.getElementById('select-inactividad');
-
-    function openConfig() { configOverlay.classList.remove('hidden'); configPanel.classList.add('open'); }
-    function closeConfig() { configOverlay.classList.add('hidden'); configPanel.classList.remove('open'); }
-    
-    btnConfig.addEventListener('click', openConfig);
-    btnCloseConfig.addEventListener('click', closeConfig);
-    configOverlay.addEventListener('click', closeConfig);
-
-    selectDensidad.addEventListener('change', (e) => {
-        if(e.target.value === 'compacta') mainTable.classList.add('table-compact');
-        else mainTable.classList.remove('table-compact');
-    });
-
-    checkAlertasCriticas.addEventListener('change', updateNotifVisibility);
-
-    let logoutTimer;
-    function resetLogoutTimer() {
-        if(appMain.classList.contains('hidden')) return; 
-        clearTimeout(logoutTimer);
-        const minutes = parseInt(selectInactividad.value);
-        logoutTimer = setTimeout(() => {
-            alert("Sesión cerrada por inactividad (" + minutes + " min).");
-            btnLogout.click();
-        }, minutes * 60 * 1000); 
-    }
-
-    ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => { document.addEventListener(evt, resetLogoutTimer); });
-    selectInactividad.addEventListener('change', resetLogoutTimer);
-
-    // Clics globales para cerrar menús flotantes
-    document.addEventListener('click', (e) => {
-        if(!dropdown.classList.contains('hidden') && !document.getElementById('notif-wrapper').contains(e.target)) dropdown.classList.add('hidden');
-        if(!menuOptions.classList.contains('hidden') && !document.querySelector('.notif-options-wrapper').contains(e.target)) menuOptions.classList.add('hidden');
-        if(e.target === modalMedico) btnCerrarModal.click();
-    });
-});
+    <script src="cardio.js"></script>
+</body>
+</html>
