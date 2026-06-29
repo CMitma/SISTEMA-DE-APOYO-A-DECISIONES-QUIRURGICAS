@@ -1,0 +1,26 @@
+/* ==========================================
+   VISTA 3: HISTORIAL
+   ========================================== */
+.summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2.5rem; }
+.card-green { border-left: 4px solid var(--node-safe); }
+.card-red { border-left: 4px solid var(--node-critical); }
+.card-blue { border-left: 4px solid var(--accent-blue); }
+.card-top { display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 1rem; }
+.card-value { font-size: 2.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+.card-bottom { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+.table-container { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+.table-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+.search-box { display: flex; align-items: center; border: 1px solid var(--border-color); background: var(--bg-main); border-radius: 6px; padding: 0.5rem 1rem; width: 300px; }
+.search-box input { border: none; background: transparent; color: var(--text-primary); outline: none; margin-left: 0.5rem; width: 100%; font-family: var(--font-main); font-size: 0.85rem; }
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th { padding: 1.25rem 1.5rem; font-size: 0.75rem; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
+.data-table td { padding: 1.25rem 1.5rem; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
+.badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; border: 1px solid; }
+.badge-safe { color: var(--node-safe); border-color: rgba(48,209,88,0.3); background: rgba(48,209,88,0.05); }
+.badge-critical { color: var(--node-critical); border-color: rgba(255,69,58,0.3); background: rgba(255,69,58,0.05); }
+.badge-warning { color: var(--node-warning); border-color: rgba(255,159,10,0.3); background: rgba(255,159,10,0.05); }
+.actions-cell i { font-size: 1.1rem; color: var(--text-secondary); margin-right: 0.75rem; cursor: pointer; transition: 0.2s; }
+.actions-cell i:hover { color: var(--accent-blue); }
+
+.data-table.table-compact th { padding: 0.6rem 1rem; font-size: 0.7rem; }
+.data-table.table-compact td { padding: 0.6rem 1rem; font-size: 0.85rem; }
