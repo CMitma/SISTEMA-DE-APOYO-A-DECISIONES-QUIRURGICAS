@@ -1,0 +1,261 @@
+:root {
+    --bg-main: #f1f5f9;
+    --bg-card: #ffffff;
+    --sidebar-color: #0b132b;
+    --blue-clinical: #1e60ff;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-soft: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Ocultar app al inicio */
+.app-container {
+    display: none;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Estructura Sidebar */
+.sidebar {
+    width: 280px;
+    background-color: var(--sidebar-color);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px 16px;
+}
+
+.brand-title {
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brand-icon { color: #1e60ff; }
+.brand-sub {
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+}
+
+.btn-new-sim {
+    width: 100%;
+    background-color: var(--blue-clinical);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    margin: 24px 0;
+    cursor: pointer;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.nav-item.active, .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+}
+
+.nav-item.logout { color: #f87171; }
+
+.app-info {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+/* Espacio de trabajo */
+.main-workspace {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.topbar {
+    background-color: #ffffff;
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.btn-emergency {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.tool-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.user-avatar-box .avatar-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Tarjetas y Rejillas */
+.content-area { padding: 24px 32px; }
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.simulation-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hero-text h2 { font-size: 22px; margin-bottom: 6px; }
+.hero-text p { color: var(--text-muted); font-size: 13px; max-width: 650px; }
+
+.hero-actions { display: flex; gap: 12px; }
+.btn-primary { background-color: var(--blue-clinical); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;}
+.btn-secondary { background: white; border: 1px solid var(--border-soft); padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;}
+
+.patient-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-card {
+    background: white;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.info-card label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--blue-clinical);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.info-value-box {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.highlight-id {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-soft);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.select-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #475569;
+}
+
+/* Telemetría */
+.telemetry-panel { padding: 0; overflow: hidden; }
+.telemetry-header {
+    background-color: #0f172a;
+    color: white;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.telemetry-title { font-size: 12px; font-weight: 700; }
+.badge-active { background-color: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; }
+.telemetry-content { padding: 24px; }
+
+.ecg-container {
+    background-color: #000;
+    height: 80px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.metric-box {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.metric-label { font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; }
+.metric-value { font-size: 28px; font-weight: 700; }
+.metric-unit { font-size: 12px; color: var(--text-muted); }
+
+/* Barra de Riesgo */
+.risk-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+.progress-bar-container { background-color: #e2e8f0; height: 6px; border-radius: 3px; margin-bottom: 8px; }
+.progress-bar-fill { background-color: #22c55e; width: 4%; height: 100%; }
+.risk-footer { font-size: 11px; color: var(--text-muted); }

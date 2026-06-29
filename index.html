@@ -3,46 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intranet Quirúrgico</title>
-    <link rel="stylesheet" href="base.css">
+    <title>Intranet Quirúrgico - CardioSupport AI</title>
+    <link rel="stylesheet" href="css edition/base.css">
+    <link rel="stylesheet" href="css edition/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     
-    <div class="app-container">
-        
-        <aside class="sidebar">
-            <div class="sidebar-brand">
+    <div id="login-screen" class="login-page">
+        <div class="login-wrapper">
+            <header class="login-header">
+                <div class="logo-box">
+                    <i class="fa-solid fa-heart logo-icon"></i>
                 </div>
-            
-            <div class="sidebar-actions">
+                <h1>CardioSupport AI</h1>
+                <p class="subtitle">Plataforma de Soporte de Decisiones Clínicas</p>
+            </header>
+
+            <main class="login-card">
+                <form id="loginForm" novalidate>
+                    <div class="input-group">
+                        <label for="email">CORREO INSTITUCIONAL</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-user field-icon"></i>
+                            <input type="email" id="email" placeholder="nombre@hospital.org" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="surgeonCode">CÓDIGO DE CIRUJANO</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-key field-icon"></i>
+                            <input type="password" id="surgeonCode" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> INICIAR SESIÓN
+                    </button>
+                </form>
+                <footer class="card-footer">
+                    <a href="#" class="footer-link">¿Olvidó su código de acceso?</a>
+                    <a href="#" class="footer-link-register">Solicitar acceso (Registro)</a>
+                </footer>
+            </main>
+
+            <section class="security-notice">
+                <div class="notice-icon-box">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="notice-text">
+                    <p><strong>Aviso de Seguridad:</strong> Solo para uso autorizado en red hospitalaria. Todo acceso está auditado y registrado bajo protocolos HIPAA/GDPR.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="app-container" id="appMain">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="brand-title"><i class="fa-solid fa-heart brand-icon"></i> CardioSupport AI</div>
+                    <div class="brand-sub">SOPORTE QUIRÚRGICO DE PRECISIÓN</div>
+                </div>
                 <button class="btn-new-sim">
                     <i class="fa-solid fa-plus"></i> NUEVA SIMULACIÓN
                 </button>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active">
+                        <i class="fa-solid fa-wave-square"></i> Simulación Quirúrgica
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fa-solid fa-chart-simple"></i> Análisis de Pacientes
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fa-solid fa-file-lines"></i> Historial de Procedimientos
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fa-solid fa-flask"></i> Portal de Investigación
+                    </a>
+                </nav>
             </div>
             
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-heart-pulse"></i> Simulación Quirúrgica
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-chart-simple"></i> Análisis de Pacientes
-                </a>
-                <a href="#" class="nav-item active">
-                    <i class="fa-solid fa-file-lines"></i> Historial de Procedimientos
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-flask"></i> Portal de Investigación
-                </a>
-            </nav>
-            
             <div class="sidebar-footer">
-                <a href="#" class="nav-item">
-                    <i class="fa-solid fa-headset"></i> Soporte Técnico
-                </a>
-                <a href="#" class="nav-item logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
-                </a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-headset"></i> Soporte Técnico</a>
+                <a href="#" id="btnLogout" class="nav-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión</a>
                 <div class="app-info">
                     <p>Versión 2.4.1</p>
                     <p>Sincronización en la Nube Activa</p>
@@ -55,23 +100,103 @@
                 <div class="breadcrumbs">
                     <span class="breadcrumb-root">CardioSupport AI</span>
                     <i class="fa-solid fa-chevron-right separator"></i>
-                    <span class="breadcrumb-current">Historial de Procedimientos</span>
+                    <span class="breadcrumb-current">Simulación Quirúrgica</span>
                 </div>
-                
-                <div class="topbar-tools">
+                <div class="topbar-right">
+                    <button class="btn-emergency">Acceso de Emergencia</button>
                     <button class="tool-btn"><i class="fa-regular fa-bell"></i></button>
                     <button class="tool-btn"><i class="fa-solid fa-gear"></i></button>
-                    <button class="avatar-btn"><i class="fa-regular fa-user"></i></button>
+                    <div class="user-avatar-box">
+                        <img src="https://i.imgur.com/7YVwK8p.png" alt="Doctor Avatar" class="avatar-img">
+                    </div>
                 </div>
             </header>
 
             <main class="content-area">
-                
+                <section class="card simulation-hero">
+                    <div class="hero-text">
+                        <h2>Simulación de Quirófano en Vivo</h2>
+                        <p>Modela escenarios cardiovasculares mediante grafos de toma de decisiones de 1,500 nodos, isquemia, y algoritmos de optimización.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn-secondary"><i class="fa-solid fa-rotate-right"></i> Reiniciar</button>
+                        <button class="btn-primary">Concluir Simulación</button>
+                    </div>
+                </section>
+
+                <section class="patient-info-grid">
+                    <div class="info-card">
+                        <label>NOMBRE DEL PACIENTE</label>
+                        <div class="info-value-box">Mariano Valenzuela</div>
+                    </div>
+                    <div class="info-card">
+                        <label>ID CLÍNICO</label>
+                        <div class="info-value-box highlight-id">PT-7724</div>
+                    </div>
+                    <div class="info-card">
+                        <label>INTERVENCIÓN DE ALTA COMPLEJIDAD</label>
+                        <div class="info-value-box select-box">
+                            <span>Bypass Coronario (Complejidad Espacial)</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card telemetry-panel">
+                    <header class="telemetry-header">
+                        <div class="telemetry-title"><i class="fa-solid fa-satellite-dish"></i> TELEMETRÍA QUIRÚRGICA</div>
+                        <span class="badge-active">MONITOR ACTIVO</span>
+                    </header>
+                    <div class="telemetry-content">
+                        <div class="ecg-container">
+                            <svg class="ecg-wave" viewBox="0 0 800 100" preserveAspectRatio="none">
+                                <path d="M0,50 L200,50 L210,40 L220,50 L230,50 L240,20 L250,90 L260,50 L270,50 L280,55 L290,50 L500,50 L510,35 L520,50 L530,50 L540,15 L550,95 L560,50 L570,50 L580,55 L590,50 L800,50" 
+                                      fill="none" stroke="#00ffaa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="metrics-grid">
+                            <div class="metric-box">
+                                <span class="metric-label">FRECUENCIA CARDÍACA</span>
+                                <div class="metric-number-wrapper">
+                                    <span class="metric-value" id="val-fc">76</span> <span class="metric-unit">lpm</span>
+                                </div>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">PRESIÓN ARTERIAL</span>
+                                <div class="metric-number-wrapper">
+                                    <span class="metric-value" id="val-pa">121/84</span> <span class="metric-unit">mmHg</span>
+                                </div>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">SUSTENTACIÓN O2 (SPO2)</span>
+                                <div class="metric-number-wrapper">
+                                    <span class="metric-value" id="val-spo2">100%</span>
+                                </div>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">PINZAMIENTO CLÍNICO</span>
+                                <div class="metric-number-wrapper">
+                                    <span class="metric-value">0</span> <span class="metric-unit">min</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card risk-section">
+                    <div class="risk-header">
+                        <span><i class="fa-solid fa-triangle-exclamation"></i> SCORE DE RIESGO PERIOPERATORIO</span>
+                        <strong>4%</strong>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                    <p class="risk-footer">Estabilidad hemodinámica monitorizada</p>
+                </section>
             </main>
         </div>
-
     </div>
 
-    <script type="module" src="java edition/app.js"></script>
+    <script src="java edition/app.js"></script>
 </body>
 </html>
