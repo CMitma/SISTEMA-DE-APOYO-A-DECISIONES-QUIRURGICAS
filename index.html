@@ -1,224 +1,393 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intranet Quirúrgico - CardioSupport AI</title>
-    <link rel="stylesheet" href="css edition/base.css">
-    <link rel="stylesheet" href="css edition/login.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // ==========================================
+    // ESTADO GLOBAL (Base de Datos Local)
+    // ==========================================
+    const state = {
+        simulations: [
+            { id: "SIM-2023-0892", date: "24 Oct 2023, 08:30", patientId: "PT-9921", patientName: "Armando Cisneros", riskLvl: "SEGURO", riskScore: 12, timeEst: "3h 45m", operation: "Bypass Coronario (Complejidad Espacial)" },
+            { id: "SIM-2023-0891", date: "24 Oct 2023, 07:15", patientId: "PT-8344", patientName: "Graciela Montenegro", riskLvl: "CRÍTICO", riskScore: 78, timeEst: "5h 20m", operation: "Trasplante Cardiaco de Alta Complex" }
+        ]
+    };
+
+    // ==========================================
+    // FLUJO DEL LOGIN Y ENRUTAMIENTO (SPA)
+    // ==========================================
+    const loginScreen = document.getElementById('login-screen');
+    const appMain = document.getElementById('appMain');
+    const loginForm = document.getElementById('loginForm');
+    const btnLogout = document.getElementById('btnLogout');
+
+    const navSimulacion = document.getElementById('nav-simulacion');
+    const navAnalisis = document.getElementById('nav-analisis');
+    const navHistorial = document.getElementById('nav-historial');
     
-    <div id="login-screen" class="login-page">
-        <div class="login-wrapper">
-            <header class="login-header">
-                <div class="logo-box">
-                    <i class="fa-solid fa-heart logo-icon"></i>
-                </div>
-                <h1>CardioSupport AI</h1>
-                <p class="subtitle">Módulo de Simulación de Quirófano v2.4.1</p>
-            </header>
+    const vistaSimulacion = document.getElementById('vista-simulacion');
+    const vistaAnalisis = document.getElementById('vista-analisis');
+    const vistaHistorial = document.getElementById('vista-historial');
+    
+    const breadcrumbActual = document.getElementById('breadcrumb-actual');
 
-            <main class="login-card">
-                <div class="simulator-status-alert">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <div>
-                        <strong>Estado del Sistema:</strong> Listo para cargar escenario cardiovascular de 1,500 nodos con isquemia interactiva.
-                    </div>
-                </div>
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        loginScreen.classList.add('hidden');
+        appMain.classList.remove('hidden');
+        resetLogoutTimer();
+        actualizarVistas(); // Renderizar tablas al iniciar
+    });
 
-                <form id="loginForm" novalidate>
-                    <div class="input-group">
-                        <label for="email">IDENTIFICADOR DE QUIRÓFANO</label>
-                        <div class="input-wrapper">
-                            <i class="fa-solid fa-hospital field-icon"></i>
-                            <input type="text" id="email" placeholder="Ej: Q-OR-04" required>
-                        </div>
-                    </div>
+    btnLogout.addEventListener('click', (e) => {
+        e.preventDefault();
+        appMain.classList.add('hidden');
+        loginScreen.classList.remove('hidden');
+        loginForm.reset();
+        clearTimeout(logoutTimer);
+    });
 
-                    <div class="input-group">
-                        <label for="surgeonCode">TOKEN DE AUTORIZACIÓN CLÍNICA</label>
-                        <div class="input-wrapper">
-                            <i class="fa-solid fa-shield-heart field-icon"></i>
-                            <input type="password" id="surgeonCode" placeholder="Ingresa clave de simulación" required>
-                        </div>
-                    </div>
+    function resetViews() {
+        navSimulacion.classList.remove('active');
+        navAnalisis.classList.remove('active');
+        navHistorial.classList.remove('active');
+        vistaSimulacion.classList.add('hidden');
+        vistaAnalisis.classList.add('hidden');
+        vistaHistorial.classList.add('hidden');
+    }
 
-                    <button type="submit" class="btn-submit">
-                        <i class="fa-solid fa-play"></i> INICIAR ESCENARIO QUIRÚRGICO
-                    </button>
-                </form>
-                <footer class="card-footer">
-                    <a href="#" class="footer-link">Ver manual de contingencia</a>
-                    <a href="#" class="footer-link-register">Configurar nuevo hardware</a>
-                </footer>
-            </main>
+    navSimulacion.addEventListener('click', (e) => {
+        e.preventDefault(); resetViews();
+        navSimulacion.classList.add('active');
+        vistaSimulacion.classList.remove('hidden');
+        breadcrumbActual.textContent = "Simulación Quirúrgica";
+    });
 
-            <section class="security-notice">
-                <div class="notice-icon-box">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div class="notice-text">
-                    <p><strong>Modo de Pruebas Clínicas:</strong> Los datos generados alimentan el algoritmo de optimización espacial para Bypass Coronario.</p>
-                </div>
-            </section>
-        </div>
-    </div>
+    navAnalisis.addEventListener('click', (e) => {
+        e.preventDefault(); resetViews();
+        navAnalisis.classList.add('active');
+        vistaAnalisis.classList.remove('hidden');
+        breadcrumbActual.textContent = "Análisis de Pacientes";
+    });
 
-    <div class="app-container" id="appMain">
-        <aside class="sidebar">
-            <div class="sidebar-top">
-                <div class="sidebar-brand">
-                    <div class="brand-title"><i class="fa-solid fa-heart brand-icon"></i> CardioSupport AI</div>
-                    <div class="brand-sub">SOPORTE QUIRÚRGICO DE PRECISIÓN</div>
-                </div>
-                <button class="btn-new-sim">
-                    <i class="fa-solid fa-plus"></i> NUEVA SIMULACIÓN
-                </button>
-                <nav class="sidebar-nav">
-                    <a href="#" class="nav-item active">
-                        <i class="fa-solid fa-wave-square"></i> Simulación Quirúrgica
-                    </a>
-                    <a href="#" class="nav-item">
-                        <i class="fa-solid fa-chart-simple"></i> Análisis de Pacientes
-                    </a>
-                    <a href="#" class="nav-item">
-                        <i class="fa-solid fa-file-lines"></i> Historial de Procedimientos
-                    </a>
-                    <a href="#" class="nav-item">
-                        <i class="fa-solid fa-flask"></i> Portal de Investigación
-                    </a>
-                </nav>
-            </div>
+    navHistorial.addEventListener('click', (e) => {
+        e.preventDefault(); resetViews();
+        navHistorial.classList.add('active');
+        vistaHistorial.classList.remove('hidden');
+        breadcrumbActual.textContent = "Historial de Procedimientos";
+    });
+
+
+    // ==========================================
+    // LÓGICA DE SIMULACIÓN Y ACTUALIZACIÓN
+    // ==========================================
+    const btnConcluirSim = document.getElementById('btn-concluir-sim');
+    const btnNuevaSimSidebar = document.getElementById('btn-nueva-sim-sidebar');
+    const btnReiniciarSim = document.getElementById('btn-reiniciar-sim');
+    
+    const inputPaciente = document.getElementById('buscar-paciente');
+    const lblPacienteId = document.getElementById('lbl-paciente-id');
+    const selectOperacion = document.getElementById('select-operacion');
+
+    // UI de simulación (telemetría)
+    const valFc = document.getElementById('val-fc');
+    const valPa = document.getElementById('val-pa');
+    const valRiskScore = document.getElementById('val-risk-score');
+    const riskBarFill = document.getElementById('risk-bar-fill');
+
+    function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function generarNuevaSimulacion() {
+        // Generar datos aleatorios simples para la vista
+        inputPaciente.value = "";
+        lblPacienteId.textContent = `PT-${randomInt(1000, 9999)}`;
+        selectOperacion.selectedIndex = 0;
+        
+        let newRisk = randomInt(2, 85);
+        valFc.textContent = randomInt(60, 100);
+        valPa.textContent = `${randomInt(110, 140)}/${randomInt(70, 90)}`;
+        
+        valRiskScore.textContent = `${newRisk}%`;
+        riskBarFill.style.width = `${newRisk}%`;
+        
+        if (newRisk > 70) riskBarFill.style.backgroundColor = "var(--danger-red)";
+        else if (newRisk > 30) riskBarFill.style.backgroundColor = "var(--node-warning)";
+        else riskBarFill.style.backgroundColor = "var(--node-safe)";
+        
+        navSimulacion.click(); // Navegar a la simulación
+    }
+
+    btnNuevaSimSidebar.addEventListener('click', generarNuevaSimulacion);
+    btnReiniciarSim.addEventListener('click', generarNuevaSimulacion);
+
+    btnConcluirSim.addEventListener('click', () => {
+        let riskScore = parseInt(valRiskScore.textContent);
+        let riskLvl = riskScore > 70 ? "CRÍTICO" : (riskScore > 30 ? "CAUTELOSO" : "SEGURO");
+        
+        // Crear objeto de simulación
+        let nuevaSim = {
+            id: `SIM-2023-0${randomInt(900, 999)}`,
+            date: new Date().toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            patientId: lblPacienteId.textContent,
+            patientName: inputPaciente.value || "Paciente Anónimo",
+            riskLvl: riskLvl,
+            riskScore: riskScore,
+            timeEst: `${randomInt(2, 6)}h ${randomInt(10, 50)}m`,
+            operation: selectOperacion.value
+        };
+
+        // Guardar en el array (al principio)
+        state.simulations.unshift(nuevaSim);
+        
+        alert(`Simulación ${nuevaSim.id} concluida con éxito y registrada en el sistema.`);
+        actualizarVistas();
+    });
+
+    function actualizarVistas() {
+        renderHistorial();
+        renderAnalisis();
+    }
+
+    function renderHistorial() {
+        const tbody = document.getElementById('historial-tbody');
+        tbody.innerHTML = '';
+        
+        let criticos = 0;
+        
+        state.simulations.forEach(sim => {
+            if (sim.riskLvl === "CRÍTICO") criticos++;
             
-            <div class="sidebar-footer">
-                <a href="#" class="nav-item"><i class="fa-solid fa-headset"></i> Soporte Técnico</a>
-                <a href="#" id="btnLogout" class="nav-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión</a>
-                <div class="app-info">
-                    <p>Versión 2.4.1</p>
-                    <p>Sincronización en la Nube Activa</p>
-                </div>
-            </div>
-        </aside>
+            let badgeClass = sim.riskLvl === "SEGURO" ? "badge-safe" : (sim.riskLvl === "CRÍTICO" ? "badge-critical" : "badge-warning");
+            
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${sim.id}</strong></td>
+                <td>${sim.date}</td>
+                <td><strong>${sim.patientId}</strong> ${sim.patientName}</td>
+                <td><span class="badge ${badgeClass}"><i class="fa-solid fa-circle"></i> ${sim.riskLvl}</span></td>
+                <td>${sim.timeEst} / ${sim.riskScore}% risk</td>
+                <td class="actions-cell"><i class="fa-regular fa-eye"></i> <i class="fa-regular fa-file-lines"></i></td>
+            `;
+            tbody.appendChild(tr);
+        });
 
-        <div class="main-workspace">
-            <header class="topbar">
-                <div class="breadcrumbs">
-                    <span class="breadcrumb-root">CardioSupport AI</span>
-                    <i class="fa-solid fa-chevron-right separator"></i>
-                    <span class="breadcrumb-current">Simulación Quirúrgica</span>
-                </div>
-                <div class="topbar-right">
-                    <button class="btn-emergency">Acceso de Emergencia</button>
-                    <button class="tool-btn"><i class="fa-regular fa-bell"></i></button>
-                    <button class="tool-btn"><i class="fa-solid fa-gear"></i></button>
-                    <div class="user-avatar-box">
-                        <img src="https://i.imgur.com/7YVwK8p.png" alt="Doctor Avatar" class="avatar-img">
-                    </div>
-                </div>
-            </header>
+        document.getElementById('hist-total').textContent = state.simulations.length;
+        document.getElementById('hist-criticos').textContent = criticos;
+    }
 
-            <main class="content-area">
-                <section class="card simulation-hero">
-                    <div class="hero-text">
-                        <h2>Simulación de Quirófano en Vivo</h2>
-                        <p>Modela escenarios cardiovasculares mediante grafos de toma de decisiones de 1,500 nodos, isquemia, y algoritmos de optimización.</p>
-                    </div>
-                    <div class="hero-actions">
-                        <button class="btn-secondary"><i class="fa-solid fa-rotate-right"></i> Reiniciar</button>
-                        <button class="btn-primary">Concluir Simulación</button>
-                    </div>
-                </section>
+    function renderAnalisis() {
+        let total = state.simulations.length;
+        if (total === 0) return;
 
-                <section class="patient-info-grid">
-                    <div class="info-card">
-                        <label for="buscar-paciente">BUSCAR PACIENTE (ESCRIBE NOMBRE)</label>
-                        <div class="info-value-box">
-                            <input type="text" id="buscar-paciente" list="lista-pacientes" class="medical-search-input" placeholder="Escriba para buscar..." value="Mariano Valenzuela">
-                            
-                            <datalist id="lista-pacientes">
-                                <option value="Mariano Valenzuela">
-                                <option value="Elena Rostova">
-                                <option value="Carlos Mendoza">
-                            </datalist>
-                        </div>
-                    </div>
-                    
-                    <div class="info-card">
-                        <label>ID CLÍNICO</label>
-                        <div class="info-value-box">
-                            <span id="lbl-paciente-id" class="highlight-id">PT-7724</span>
-                        </div>
-                    </div>
-                    
-                    <div class="info-card">
-                        <label for="select-operacion">INTERVENCIÓN DE ALTA COMPLEJIDAD</label>
-                        <div class="info-value-box">
-                            <select id="select-operacion" class="medical-select">
-                                <option value="op1" selected>Bypass Coronario (Complejidad Espacial)</option>
-                                <option value="op2">Reemplazo de Válvula Aórtica (TAVI)</option>
-                                <option value="op3">Corrección de Aneurisma Directo</option>
-                            </select>
-                        </div>
-                    </div>
-                </section>
+        let totalRisk = 0;
+        let cSafe = 0, cWarn = 0, cCrit = 0;
+        let cBypass = 0, cTrans = 0, cValv = 0;
 
-                <section class="card telemetry-panel">
-                    <header class="telemetry-header">
-                        <div class="telemetry-title"><i class="fa-solid fa-satellite-dish"></i> TELEMETRÍA QUIRÚRGICA</div>
-                        <span class="badge-active">MONITOR ACTIVO</span>
-                    </header>
-                    <div class="telemetry-content">
-                        <div class="ecg-container">
-                            <svg class="ecg-wave" viewBox="0 0 800 100" preserveAspectRatio="none">
-                                <path d="M0,50 L200,50 L210,40 L220,50 L230,50 L240,20 L250,90 L260,50 L270,50 L280,55 L290,50 L500,50 L510,35 L520,50 L530,50 L540,15 L550,95 L560,50 L570,50 L580,55 L590,50 L800,50" 
-                                      fill="none" stroke="#00ffaa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <div class="metrics-grid">
-                            <div class="metric-box">
-                                <span class="metric-label">FRECUENCIA CARDÍACA</span>
-                                <div class="metric-number-wrapper">
-                                    <span class="metric-value" id="val-fc">76</span> <span class="metric-unit">lpm</span>
-                                </div>
-                            </div>
-                            <div class="metric-box">
-                                <span class="metric-label">PRESIÓN ARTERIAL</span>
-                                <div class="metric-number-wrapper">
-                                    <span class="metric-value" id="val-pa">121/84</span> <span class="metric-unit">mmHg</span>
-                                </div>
-                            </div>
-                            <div class="metric-box">
-                                <span class="metric-label">SUSTENTACIÓN O2 (SPO2)</span>
-                                <div class="metric-number-wrapper">
-                                    <span class="metric-value" id="val-spo2">100%</span>
-                                </div>
-                            </div>
-                            <div class="metric-box">
-                                <span class="metric-label">PINZAMIENTO CLÍNICO</span>
-                                <div class="metric-number-wrapper">
-                                    <span class="metric-value">0</span> <span class="metric-unit">min</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        state.simulations.forEach(sim => {
+            totalRisk += sim.riskScore;
+            if (sim.riskLvl === "SEGURO") cSafe++;
+            else if (sim.riskLvl === "CRÍTICO") cCrit++;
+            else cWarn++;
 
-                <section class="card risk-section">
-                    <div class="risk-header">
-                        <span><i class="fa-solid fa-triangle-exclamation"></i> SCORE DE RIESGO PERIOPERATORIO</span>
-                        <strong>4%</strong>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill"></div>
-                    </div>
-                    <p class="risk-footer">Estabilidad hemodinámica monitorizada</p>
-                </section>
-            </main>
-        </div>
-    </div>
+            if (sim.operation.includes("Bypass")) cBypass++;
+            else if (sim.operation.includes("Trasplante")) cTrans++;
+            else cValv++;
+        });
 
-    <script src="java edition/app.js"></script>
-</body>
-</html>
+        let avgRisk = Math.round(totalRisk / total);
+        let success = total - cCrit; // Lógica simple de éxito
+
+        // Top Cards
+        document.getElementById('ana-total-sim').textContent = total;
+        document.getElementById('ana-nuevas-hoy').textContent = `+${total - 2} agregadas hoy`;
+        document.getElementById('ana-avg-risk').textContent = `${avgRisk}%`;
+        document.getElementById('ana-critical').textContent = cCrit;
+        document.getElementById('ana-critical-pct').textContent = `${Math.round((cCrit/total)*100)}% del total quirúrgico`;
+        document.getElementById('ana-success').textContent = success;
+        document.getElementById('ana-success-pct').textContent = `${Math.round((success/total)*100)}% total de supervivencia`;
+
+        // Barras de Progreso
+        document.getElementById('ana-bar-safe').style.width = `${(cSafe/total)*100}%`;
+        document.getElementById('ana-bar-safe-txt').textContent = `${cSafe} casos (${Math.round((cSafe/total)*100)}%)`;
+        
+        document.getElementById('ana-bar-warn').style.width = `${(cWarn/total)*100}%`;
+        document.getElementById('ana-bar-warn-txt').textContent = `${cWarn} casos (${Math.round((cWarn/total)*100)}%)`;
+        
+        document.getElementById('ana-bar-crit').style.width = `${(cCrit/total)*100}%`;
+        document.getElementById('ana-bar-crit-txt').textContent = `${cCrit} casos (${Math.round((cCrit/total)*100)}%)`;
+
+        // Procedimientos
+        document.getElementById('ana-proc-bypass').textContent = cBypass;
+        document.getElementById('ana-proc-trasplante').textContent = cTrans;
+        document.getElementById('ana-proc-valvula').textContent = cValv;
+    }
+
+
+    // ==========================================
+    // MODAL PERFIL MÉDICO
+    // ==========================================
+    const modalMedico = document.getElementById('modal-medico');
+    const btnAvatarPerfil = document.getElementById('btn-avatar-perfil');
+    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
+    
+    const formContainer = document.getElementById('profile-form');
+    const btnModificar = document.getElementById('btn-modificar');
+    const btnGuardar = document.getElementById('btn-guardar');
+    const btnCancelar = document.getElementById('btn-cancelar');
+    const inputs = document.querySelectorAll('.data-input');
+    const STORAGE_KEY = 'doctor_profile_data';
+    
+    function populateFields() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if(stored) {
+            const data = JSON.parse(stored);
+            document.getElementById('input-nombres').value = data.nombres;
+            document.getElementById('input-apellidos').value = data.apellidos;
+            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
+        }
+        inputs.forEach(i => i.classList.remove('error'));
+    }
+
+    function toggleEditMode(isEditing) {
+        if (isEditing) {
+            formContainer.classList.add('is-editing');
+            btnModificar.style.display = 'none';
+            btnGuardar.style.display = 'inline-block';
+            btnCancelar.style.display = 'inline-block';
+            inputs.forEach(i => i.removeAttribute('readonly'));
+        } else {
+            formContainer.classList.remove('is-editing');
+            btnModificar.style.display = 'inline-block';
+            btnGuardar.style.display = 'none';
+            btnCancelar.style.display = 'none';
+            inputs.forEach(i => { i.setAttribute('readonly', true); i.classList.remove('error'); });
+        }
+    }
+
+    btnAvatarPerfil.addEventListener('click', () => { populateFields(); modalMedico.classList.remove('hidden'); });
+    btnCerrarModal.addEventListener('click', () => { modalMedico.classList.add('hidden'); toggleEditMode(false); });
+    btnModificar.addEventListener('click', () => toggleEditMode(true));
+    btnCancelar.addEventListener('click', () => { populateFields(); toggleEditMode(false); });
+    
+    btnGuardar.addEventListener('click', () => {
+        let isValid = true;
+        inputs.forEach(input => {
+            if(input.value.trim() === '') { isValid = false; input.classList.add('error'); }
+            else { input.classList.remove('error'); }
+        });
+        if (isValid) {
+            const data = {
+                nombres: document.getElementById('input-nombres').value,
+                apellidos: document.getElementById('input-apellidos').value
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
+            toggleEditMode(false);
+        } else {
+            alert("Todos los campos son obligatorios.");
+        }
+    });
+
+    // ==========================================
+    // PANEL NOTIFICACIONES
+    // ==========================================
+    const btnNotif = document.getElementById('btn-notificaciones');
+    const dropdown = document.getElementById('notif-dropdown');
+    const badge = document.getElementById('notif-badge-count');
+    const notifItems = document.querySelectorAll('.notif-item');
+    const filterAll = document.getElementById('filter-all');
+    const filterUnread = document.getElementById('filter-unread');
+    const btnOptions = document.getElementById('btn-notif-options');
+    const menuOptions = document.getElementById('notif-options-menu');
+    const btnMarkRead = document.getElementById('btn-mark-all-read');
+
+    btnNotif.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); menuOptions.classList.add('hidden'); });
+    btnOptions.addEventListener('click', (e) => { e.stopPropagation(); menuOptions.classList.toggle('hidden'); });
+    
+    function updateNotifVisibility() {
+        const isUnreadFilter = filterUnread.classList.contains('active');
+        const showCriticalOnly = document.getElementById('check-alertas-criticas').checked;
+        
+        let visibleCount = 0;
+        notifItems.forEach(item => {
+            const isUnread = item.classList.contains('unread');
+            const isCritical = item.classList.contains('critical-alert');
+            
+            let shouldShow = true;
+            if (isUnreadFilter && !isUnread) shouldShow = false;
+            if (showCriticalOnly && !isCritical) shouldShow = false;
+            
+            item.style.display = shouldShow ? 'flex' : 'none';
+            if (isUnread && shouldShow && !showCriticalOnly) visibleCount++;
+            if (isUnread && showCriticalOnly && isCritical) visibleCount++;
+        });
+    }
+
+    filterAll.addEventListener('click', (e) => { e.stopPropagation(); filterAll.classList.add('active'); filterUnread.classList.remove('active'); updateNotifVisibility(); });
+    filterUnread.addEventListener('click', (e) => { e.stopPropagation(); filterUnread.classList.add('active'); filterAll.classList.remove('active'); updateNotifVisibility(); });
+
+    btnMarkRead.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notifItems.forEach(i => i.classList.remove('unread'));
+        badge.style.display = 'none';
+        menuOptions.classList.add('hidden');
+        updateNotifVisibility();
+    });
+
+    notifItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if(this.classList.contains('unread')) {
+                this.classList.remove('unread');
+                let c = parseInt(badge.textContent);
+                if(c > 0) { c--; badge.textContent = c; if(c===0) badge.style.display = 'none'; }
+                updateNotifVisibility();
+            }
+            dropdown.classList.add('hidden');
+        });
+    });
+
+    // ==========================================
+    // CONFIGURACIÓN
+    // ==========================================
+    const btnConfig = document.getElementById('btn-configuracion');
+    const configPanel = document.getElementById('config-panel');
+    const configOverlay = document.getElementById('config-overlay');
+    const btnCloseConfig = document.getElementById('btn-cerrar-config');
+    const selectDensidad = document.getElementById('select-densidad');
+    const mainTable = document.getElementById('main-data-table');
+    const checkAlertasCriticas = document.getElementById('check-alertas-criticas');
+    const selectInactividad = document.getElementById('select-inactividad');
+
+    function openConfig() { configOverlay.classList.remove('hidden'); configPanel.classList.add('open'); }
+    function closeConfig() { configOverlay.classList.add('hidden'); configPanel.classList.remove('open'); }
+    
+    btnConfig.addEventListener('click', openConfig);
+    btnCloseConfig.addEventListener('click', closeConfig);
+    configOverlay.addEventListener('click', closeConfig);
+
+    selectDensidad.addEventListener('change', (e) => {
+        if(e.target.value === 'compacta') mainTable.classList.add('table-compact');
+        else mainTable.classList.remove('table-compact');
+    });
+
+    checkAlertasCriticas.addEventListener('change', updateNotifVisibility);
+
+    let logoutTimer;
+    function resetLogoutTimer() {
+        if(appMain.classList.contains('hidden')) return; 
+        clearTimeout(logoutTimer);
+        const minutes = parseInt(selectInactividad.value);
+        logoutTimer = setTimeout(() => {
+            alert("Sesión cerrada por inactividad (" + minutes + " min).");
+            btnLogout.click();
+        }, minutes * 60 * 1000); 
+    }
+
+    ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => { document.addEventListener(evt, resetLogoutTimer); });
+    selectInactividad.addEventListener('change', resetLogoutTimer);
+
+    // Clics globales para cerrar menús flotantes
+    document.addEventListener('click', (e) => {
+        if(!dropdown.classList.contains('hidden') && !document.getElementById('notif-wrapper').contains(e.target)) dropdown.classList.add('hidden');
+        if(!menuOptions.classList.contains('hidden') && !document.querySelector('.notif-options-wrapper').contains(e.target)) menuOptions.classList.add('hidden');
+        if(e.target === modalMedico) btnCerrarModal.click();
+    });
+});
