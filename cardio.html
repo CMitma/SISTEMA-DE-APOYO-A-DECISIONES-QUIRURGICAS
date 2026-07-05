@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intranet Quirúrgico - CardioSupport AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <link rel="stylesheet" href="css edition/login.css">
     <link rel="stylesheet" href="css edition/main.css">
     <link rel="stylesheet" href="css edition/simulacion.css">
@@ -166,11 +168,13 @@
                     <section class="card simulation-hero">
                         <div class="hero-text">
                             <h2>Simulación de Quirófano en Vivo</h2>
-                            <p>Modela escenarios cardiovasculares mediante grafos de toma de decisiones de 1,500 nodos, isquemia, y algoritmos de optimización.</p>
+                            <p>Modela escenarios cardiovasculares mediante grafos de toma de decisiones de nodos, isquemia, y algoritmos de optimización.</p>
                         </div>
                         <div class="hero-actions">
+                            <button class="btn-secondary" id="btn-ver-grafo"><i class="fa-solid fa-project-diagram"></i> Ver Red de Nodos</button>
                             <button class="btn-secondary" id="btn-reiniciar-sim"><i class="fa-solid fa-rotate-right"></i> Reiniciar</button>
                             <button class="btn-primary" id="btn-concluir-sim">Concluir Simulación</button>
+                            <button class="btn-primary hidden" id="btn-salir-playback" style="background-color: var(--danger-red);"><i class="fa-solid fa-circle-stop"></i> Salir del Playback</button>
                         </div>
                     </section>
 
@@ -339,8 +343,12 @@
                             <p>Registro auditable de modelos predictivos y evaluaciones de riesgo operativo. Realice un seguimiento exhaustivo de isquemias y costes.</p>
                         </div>
                         <div class="header-actions">
-                            <button class="btn-outline"><i class="fa-solid fa-filter"></i> Filtro: Todos logs</button>
-                            <button class="btn-filled"><i class="fa-solid fa-download"></i> Exportar Lote PDF</button>
+                            <select class="btn-secondary" id="filtro-historial" style="outline: none; cursor: pointer; font-family: inherit;">
+                                <option value="LOCAL" selected>Bandeja Local (Recientes)</option>
+                                <option value="ARCHIVADO">Expediente Central (Enviados)</option>
+                                <option value="TODOS">Mostrar Todos</option>
+                            </select>
+                            <button class="btn-primary" id="btn-exportar-lote"><i class="fa-solid fa-download"></i> Exportar Lote PDF</button>
                         </div>
                     </div>
 
@@ -420,6 +428,20 @@
         </div>
     </div>
 
+    <div class="modal-grafo hidden" id="modal-grafo">
+        <div class="modal-grafo-content">
+            <div class="modal-grafo-header">
+                <h3><i class="fa-solid fa-network-wired"></i> Análisis Espacial (Grafo Clínico)</h3>
+                <button class="btn-close-config" id="btn-cerrar-grafo"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="leyenda-grafo">
+                <div class="leyenda-item"><div class="dot-nodo"></div> Nodos Arteriales</div>
+                <div class="leyenda-item"><div class="dot-ruta"></div> Ruta Óptima (Dijkstra)</div>
+            </div>
+            <canvas id="canvas-grafo" width="800" height="400"></canvas>
+        </div>
+    </div>
+
     <div class="config-overlay hidden" id="config-overlay"></div>
     <div class="config-panel" id="config-panel">
         <div class="config-header">
@@ -447,16 +469,30 @@
             <div class="config-section">
                 <h3>Seguridad de Sesión</h3>
                 <div class="config-row">
-                    <span>Cierre automático por inactividad</span>
+                    <span>Cierre automático</span>
                     <select class="config-select" id="select-inactividad">
                         <option value="15">15 minutos</option>
                         <option value="30">30 minutos</option>
                         <option value="60">1 hora</option>
                     </select>
                 </div>
+                <button class="btn-outline" id="btn-descargar-log" style="width: 100%; margin-top: 15px;">
+                    <i class="fa-solid fa-file-arrow-down"></i> Descargar accesos.txt
+                </button>
             </div>
         </div>
     </div>
+
+    <div class="custom-alert-overlay hidden" id="custom-alert">
+        <div class="custom-alert-box">
+            <div class="custom-alert-icon" id="custom-alert-icon"></div>
+            <h3 class="custom-alert-title" id="custom-alert-title">Título</h3>
+            <div class="custom-alert-message" id="custom-alert-message">Mensaje</div>
+            <button class="btn-primary" id="btn-custom-alert-ok" style="width: 100%; justify-content: center; padding: 0.8rem;">Aceptar</button>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="java edition/historial.js"></script>
     <script src="java edition/notificaciones.js"></script>
