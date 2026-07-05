@@ -34,3 +34,56 @@
 .progress-bar-container { background-color: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; margin-bottom: 8px; width: 100%; overflow: hidden; }
 .progress-bar-fill { height: 100%; transition: width 0.5s ease; }
 .risk-footer { font-size: 11px; color: var(--text-secondary); }
+
+/* ==========================================
+   ANIMACIONES, ECG Y GRAFOS
+   ========================================== */
+
+/* Animación de la línea verde*/
+.ecg-wave {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: ecg-draw 1.8s linear infinite; 
+}
+
+@keyframes ecg-draw {
+    0% { stroke-dashoffset: 1000; }
+    100% { stroke-dashoffset: 0; }
+}
+
+/* Modal del VISUALIZADOR DE NODOSSS!*/
+.modal-grafo {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 3000; opacity: 1; transition: opacity 0.2s ease;
+}
+
+.modal-grafo.hidden { display: none; opacity: 0; pointer-events: none; }
+
+.modal-grafo-content {
+    background: var(--bg-surface); border: 1px solid var(--border-color);
+    border-radius: 12px; padding: 2rem; width: 900px; max-width: 90%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column;
+}
+
+.modal-grafo-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+}
+
+.modal-grafo-header h3 {
+    color: var(--text-primary); font-size: 1.2rem; display: flex; align-items: center; gap: 10px;
+}
+
+.leyenda-grafo {
+    display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; font-weight: 500;
+}
+
+.leyenda-item { display: flex; align-items: center; gap: 8px; }
+.dot-nodo { width: 10px; height: 10px; border-radius: 50%; background: #1E293B; border: 1px solid #334155; }
+.dot-ruta { width: 12px; height: 12px; border-radius: 50%; background: var(--accent-blue); box-shadow: 0 0 8px var(--accent-blue); border: 2px solid #FFF;}
+
+#canvas-grafo {
+    background: var(--bg-main); border: 1px solid var(--border-color);
+    border-radius: 8px; width: 100%; height: 400px;
+}
