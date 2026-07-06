@@ -1,8 +1,7 @@
 // ==========================================
-// PERFIL MÉDICO
+// PERFIL MÉDICO MULTI-USUARIO DINÁMICO
 // ==========================================
 function initPerfilMedico() {
-
     const modalMedico = document.getElementById('modal-medico');
     const btnAvatarPerfil = document.getElementById('btn-avatar-perfil');
     const btnCerrarModal = document.getElementById('btn-cerrar-modal');
@@ -14,14 +13,34 @@ function initPerfilMedico() {
     const STORAGE_KEY = 'doctor_profile_data';
 
     function populateFields() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if(stored) {
-            const data = JSON.parse(stored);
-            document.getElementById('input-nombres').value = data.nombres;
-            document.getElementById('input-apellidos').value = data.apellidos;
-            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
+        
+        if (window.state && window.state.doctorLogueado) {
+            const doc = window.state.doctorLogueado;
+            
+            
+            if (document.getElementById('input-nombres')) document.getElementById('input-nombres').value = doc.nombres || "";
+            if (document.getElementById('input-apellidos')) document.getElementById('input-apellidos').value = doc.apellidos || "";
+            if (document.getElementById('modal-doctor-name')) document.getElementById('modal-doctor-name').textContent = `Dr. ${doc.nombres || ""} ${doc.apellidos || ""}`;
+            
+            // Llena datos de las nuevas columnas de la base de datos
+            if (document.getElementById('input-dni')) document.getElementById('input-dni').value = doc.dni || "No registrado";
+            if (document.getElementById('input-fecha')) doacument.getElementById('input-fecha').value = doc.fecha_nacimiento || "No registrado";
+            if (document.getElementById('input-cmp')) document.getElementById('input-cmp').value = doc.cmp || "No registrado";
+            if (document.getElementById('input-hospital')) document.getElementById('input-hospital').value = doc.hospital || "No registrado";
+            if (document.getElementById('input-domicilio')) document.getElementById('input-domicilio').value = doc.domicilio || "No registrado";
+        } else {
+            // Plan B de emergencia (Local)
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                const data = JSON.parse(stored);
+                if (document.getElementById('input-nombres')) document.getElementById('input-nombres').value = data.nombres || "";
+                if (document.getElementById('input-apellidos')) document.getElementById('input-apellidos').value = data.apellidos || "";
+            }
         }
-        inputs.forEach(i => i.classList.remove('error'));
+        
+        inputs.forEach(i => {
+            i.classList.remove('error');
+        });
     }
 
     function toggleEditMode(isEditing) {
@@ -30,39 +49,85 @@ function initPerfilMedico() {
             btnModificar.style.display = 'none';
             btnGuardar.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
-            inputs.forEach(i => i.removeAttribute('readonly'));
+            inputs.forEach(i => {
+                i.removeAttribute('readonly');
+            });
         } else {
             formContainer.classList.remove('is-editing');
             btnModificar.style.display = 'inline-block';
             btnGuardar.style.display = 'none';
             btnCancelar.style.display = 'none';
-            inputs.forEach(i => { i.setAttribute('readonly', true); i.classList.remove('error'); });
+            inputs.forEach(i => { 
+                i.setAttribute('readonly', true); 
+                i.classList.remove('error'); 
+            });
         }
     }
 
-    btnAvatarPerfil.addEventListener('click', () => { populateFields(); modalMedico.classList.remove('hidden'); });
-    btnCerrarModal.addEventListener('click', () => { modalMedico.classList.add('hidden'); toggleEditMode(false); });
-    btnModificar.addEventListener('click', () => toggleEditMode(true));
-    btnCancelar.addEventListener('click', () => { populateFields(); toggleEditMode(false); });
-
-    btnGuardar.addEventListener('click', () => {
-        let isValid = true;
-        inputs.forEach(input => {
-            if(input.value.trim() === '') { isValid = false; input.classList.add('error'); }
-            else { input.classList.remove('error'); }
+    if (btnAvatarPerfil) {
+        btnAvatarPerfil.addEventListener('click', () => { 
+            populateFields(); 
+            modalMedico.classList.remove('hidden'); 
         });
-        if (isValid) {
-            const data = {
-                nombres: document.getElementById('input-nombres').value,
-                apellidos: document.getElementById('input-apellidos').value
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            document.getElementById('modal-doctor-name').textContent = `Dr. ${data.nombres} ${data.apellidos}`;
-            toggleEditMode(false);
-        } else {
-            alert("Todos los campos son obligatorios.");
-        }
-    });
-
+    }
+    
+    if (btnCerrarModal) {
+        btnCerrarModal.addEventListener('click', () => { 
+            modalMedico.classList.add('hidden'); 
+            toggleEditMode(false); 
+        });
+    }
+    
+    if (btnModificar) {
+        btnModificar.addEventListener('click', () => {
+            toggleEditMode(true);
+        });
+    }
+    
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', () => { 
+            populateFields(); 
+            toggleEditMode(false); 
+        });
+    }
+    
+    if (btnGuardar) {
+        btnGuardar.addEventListener('click', () => {
+            let isValid = true;
+            inputs.forEach(input => {
+                if (input.value.trim() === '') { 
+                    isValid = false; 
+                    input.classList.add('error'); 
+                } else { 
+                    input.classList.remove('error'); 
+                }
+            });
+            
+            if (isValid) {
+                
+                if (window.state && window.state.doctorLogueado) {
+                    window.state.doctorLogueado.nombres = document.getElementById('input-nombres').value;
+                    window.state.doctorLogueado.apellidos = document.getElementById('input-apellidos').value;
+                    if(document.getElementById('input-dni')) window.state.doctorLogueado.dni = document.getElementById('input-dni').value;
+                    if(document.getElementById('input-fecha')) window.state.doctorLogueado.fecha_nacimiento = document.getElementById('input-fecha').value;
+                    if(document.getElementById('input-cmp')) window.state.doctorLogueado.cmp = document.getElementById('input-cmp').value;
+                    if(document.getElementById('input-hospital')) window.state.doctorLogueado.hospital = document.getElementById('input-hospital').value;
+                    if(document.getElementById('input-domicilio')) window.state.doctorLogueado.domicilio = document.getElementById('input-domicilio').value;
+                }
+                
+                
+                const nombresEditados = document.getElementById('input-nombres').value;
+                const apellidosEditados = document.getElementById('input-apellidos').value;
+                document.getElementById('modal-doctor-name').textContent = `Dr. ${nombresEditados} ${apellidosEditados}`;
+                
+                toggleEditMode(false);
+            } else {
+                if(window.mostrarAlerta) {
+                    window.mostrarAlerta("Campos Incompletos", "Todos los campos del perfil son obligatorios.", "warning");
+                }
+            }
+        });
+    }
+    
     return { modalMedico, btnCerrarModal };
 }
