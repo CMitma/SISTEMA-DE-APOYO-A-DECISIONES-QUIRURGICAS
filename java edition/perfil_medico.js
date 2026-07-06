@@ -13,34 +13,34 @@ function initPerfilMedico() {
     const STORAGE_KEY = 'doctor_profile_data';
 
     function populateFields() {
-        
-        if (window.state && window.state.doctorLogueado) {
-            const doc = window.state.doctorLogueado;
-            
-            
-            if (document.getElementById('input-nombres')) document.getElementById('input-nombres').value = doc.nombres || "";
-            if (document.getElementById('input-apellidos')) document.getElementById('input-apellidos').value = doc.apellidos || "";
-            if (document.getElementById('modal-doctor-name')) document.getElementById('modal-doctor-name').textContent = `Dr. ${doc.nombres || ""} ${doc.apellidos || ""}`;
-            
-            // Llena datos de las nuevas columnas de la base de datos
-            if (document.getElementById('input-dni')) document.getElementById('input-dni').value = doc.dni || "No registrado";
-            if (document.getElementById('input-fecha')) doacument.getElementById('input-fecha').value = doc.fecha_nacimiento || "No registrado";
-            if (document.getElementById('input-cmp')) document.getElementById('input-cmp').value = doc.cmp || "No registrado";
-            if (document.getElementById('input-hospital')) document.getElementById('input-hospital').value = doc.hospital || "No registrado";
-            if (document.getElementById('input-domicilio')) document.getElementById('input-domicilio').value = doc.domicilio || "No registrado";
-        } else {
-            // Plan B de emergencia (Local)
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                const data = JSON.parse(stored);
-                if (document.getElementById('input-nombres')) document.getElementById('input-nombres').value = data.nombres || "";
-                if (document.getElementById('input-apellidos')) document.getElementById('input-apellidos').value = data.apellidos || "";
+        try {
+            if (window.state && window.state.doctorLogueado) {
+                const doc = window.state.doctorLogueado;
+                
+                if (document.getElementById('input-nombres')) document.getElementById('input-nombres').value = doc.nombres || "";
+                if (document.getElementById('input-apellidos')) document.getElementById('input-apellidos').value = doc.apellidos || "";
+                if (document.getElementById('modal-doctor-name')) document.getElementById('modal-doctor-name').textContent = `Dr. ${doc.nombres || ""} ${doc.apellidos || ""}`;
+                
+                if (document.getElementById('input-dni')) document.getElementById('input-dni').value = doc.dni || "No registrado";
+                if (document.getElementById('input-fecha')) document.getElementById('input-fecha').value = doc.fecha_nacimiento || "No registrado";
+                if (document.getElementById('input-cmp')) document.getElementById('input-cmp').value = doc.cmp || "No registrado";
+                if (document.getElementById('input-hospital')) document.getElementById('input-hospital').value = doc.hospital || "No registrado";
+                if (document.getElementById('input-domicilio')) document.getElementById('input-domicilio').value = doc.domicilio || "No registrado";
+            } else {
+                // Plan de emergencia (Local)
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (document.getElementById('input-nombres')) document.getElementById('input-nombres').value = data.nombres || "";
+                    if (document.getElementById('input-apellidos')) document.getElementById('input-apellidos').value = data.apellidos || "";
+                }
             }
+            
+            // Limpiar estilos de error
+            inputs.forEach(i => i.classList.remove('error'));
+        } catch (err) {
+            console.error("Error interno al cargar datos del perfil:", err);
         }
-        
-        inputs.forEach(i => {
-            i.classList.remove('error');
-        });
     }
 
     function toggleEditMode(isEditing) {
@@ -49,9 +49,7 @@ function initPerfilMedico() {
             btnModificar.style.display = 'none';
             btnGuardar.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
-            inputs.forEach(i => {
-                i.removeAttribute('readonly');
-            });
+            inputs.forEach(i => i.removeAttribute('readonly'));
         } else {
             formContainer.classList.remove('is-editing');
             btnModificar.style.display = 'inline-block';
@@ -66,7 +64,7 @@ function initPerfilMedico() {
 
     if (btnAvatarPerfil) {
         btnAvatarPerfil.addEventListener('click', () => { 
-            populateFields(); 
+            populateFields(); // Llena los datos
             modalMedico.classList.remove('hidden'); 
         });
     }
@@ -104,7 +102,6 @@ function initPerfilMedico() {
             });
             
             if (isValid) {
-                
                 if (window.state && window.state.doctorLogueado) {
                     window.state.doctorLogueado.nombres = document.getElementById('input-nombres').value;
                     window.state.doctorLogueado.apellidos = document.getElementById('input-apellidos').value;
@@ -114,7 +111,6 @@ function initPerfilMedico() {
                     if(document.getElementById('input-hospital')) window.state.doctorLogueado.hospital = document.getElementById('input-hospital').value;
                     if(document.getElementById('input-domicilio')) window.state.doctorLogueado.domicilio = document.getElementById('input-domicilio').value;
                 }
-                
                 
                 const nombresEditados = document.getElementById('input-nombres').value;
                 const apellidosEditados = document.getElementById('input-apellidos').value;
