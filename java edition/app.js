@@ -1,9 +1,9 @@
 // ==========================================
-// APP.JS — Orquestador central 
+// APP.JS — Orquestador principal de la aplicación
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // URL y Key API de Supabase (PostgreSQL en la nube)
+    // URL y Key de supabase 
     const SUPABASE_URL = "https://lepenlrqqeiheqmubaea.supabase.co";
     const SUPABASE_KEY = "sb_publishable_YKjH37Sduf3wE5zNvEqooQ__8JKCCSc";
     
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const notifBadge = document.querySelector('.notif-badge');
         
         if (notifLista) {
-            // Eliminar el mensaje de "No hay notificaciones" si es que existe
             const mensajeVacio = notifLista.querySelector('.text-center');
             if (mensajeVacio) {
                 mensajeVacio.remove();
@@ -52,7 +51,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Detectores de Red en tiempo real 
     window.addEventListener('offline', () => {
         window.modoDeContingencia = true;
         window.agregarNotificacionCampanita("Sin Conexión a Internet", "Se perdió la conexión. Activando la Base de Datos de Contingencia Local.", "error");
@@ -124,7 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     initLogin({ state, loginScreen, appMain, loginForm, btnLogout, resetLogoutTimer, actualizarVistas: window.historialControlador.actualizarVistas, logoutTimerRef, selectInactividad: document.getElementById('select-inactividad') });
     initSimulacion({ state, navSimulacion, actualizarVistas: window.historialControlador.actualizarVistas });
-    initPerfilMedico();
+    
+
+    const { modalMedico, btnCerrarModal } = initPerfilMedico();
 
     document.addEventListener('click', (e) => {
         if (!dropdown.classList.contains('hidden') && !document.getElementById('notif-wrapper').contains(e.target)) {
@@ -132,6 +132,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (!menuOptions.classList.contains('hidden') && !document.querySelector('.notif-options-wrapper').contains(e.target)) {
             menuOptions.classList.add('hidden');
+        }
+
+        if (modalMedico && e.target === modalMedico) {
+            btnCerrarModal.click();
         }
     });
 
