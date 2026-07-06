@@ -27,8 +27,14 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
 
         const controlBar = document.createElement('div');
         controlBar.className = 'grafo-control-bar';
+        controlBar.style.display = 'flex';
+        controlBar.style.justifyContent = 'space-between';
+        controlBar.style.alignItems = 'center';
+        controlBar.style.flexWrap = 'wrap';
+        controlBar.style.gap = '1rem';
+        
         controlBar.innerHTML = `
-            <div class="grafo-algo-btns">
+            <div class="grafo-algo-btns" style="display: flex; gap: 8px;">
                 <button id="btn-view-dijkstra" class="grafo-btn grafo-btn-active">
                     <i class="fa-solid fa-route"></i> Ruta Quirúrgica (Dijkstra)
                 </button>
@@ -36,11 +42,15 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
                     <i class="fa-solid fa-sitemap"></i> Red Vascular (Prim MST)
                 </button>
             </div>
-            <div class="grafo-leyenda">
+            <div class="grafo-leyenda" style="display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;">
                 <span class="leg-item"><span class="leg-dot leg-dot-low"></span>Bajo riesgo</span>
                 <span class="leg-item"><span class="leg-dot leg-dot-mid"></span>Precaución</span>
                 <span class="leg-item"><span class="leg-dot leg-dot-high"></span>Alto riesgo</span>
                 <span class="leg-item"><span class="leg-line leg-line-path"></span>Ruta activa</span>
+            </div>
+            <div class="grafo-total-peso" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); background: rgba(0,0,0,0.2); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-left: auto;">
+                <i class="fa-solid fa-calculator"></i> Riesgo Acumulado: 
+                <span id="lbl-total-peso" style="color: var(--accent-blue); font-size: 1.1rem;">0</span>
             </div>
         `;
         modalContent.insertBefore(controlBar, canvasGrafo);
@@ -83,6 +93,8 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
     let posicionesNodos   = [];
     let rutaOptimaActual  = [];
     let arbolPrimActual   = [];
+    let pesoDijkstraActual = 0; 
+    let pesoPrimActual     = 0; 
     let fcActual          = 80;
     let paSistActual      = 120;
     let paDiastActual     = 80;
@@ -94,7 +106,6 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
     let nodoSeleccionado  = null;
     let aristaHover       = null;
 
-    // ── Helpers ───────────────────────────────────────────────────
     function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -286,6 +297,20 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
         document.getElementById('diag-nodo-b').textContent      = `Nodo #${nodoB + 1}`;
         document.getElementById('diag-accion-text').textContent = d.accion;
         panel.classList.remove('hidden');
+    }
+    
+   
+    function actualizarEtiquetaPeso() {
+        const lblTotal = document.getElementById('lbl-total-peso');
+        if (!lblTotal) return;
+        
+        if (modoVisualizacion === 'DIJKSTRA') {
+            lblTotal.textContent = pesoDijkstraActual;
+            lblTotal.style.color = pesoDijkstraActual > 150 ? 'var(--danger-red)' : (pesoDijkstraActual > 80 ? 'var(--node-warning)' : 'var(--accent-blue)');
+        } else {
+            lblTotal.textContent = pesoPrimActual;
+            lblTotal.style.color = 'var(--text-secondary)'; 
+        }
     }
 
     document.addEventListener('click', (e) => {
@@ -532,9 +557,13 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
 
         const dijk    = dijkstra(grafoActual, 0, cfg.nodos - 1);
         rutaOptimaActual = dijk.camino;
+        pesoDijkstraActual = dijk.distancia; 
 
         const primRes = prim(grafoActual);
         arbolPrimActual = primRes.aristas;
+        pesoPrimActual = primRes.totalPeso; 
+        
+        actualizarEtiquetaPeso(); 
 
         if (simInterval) clearInterval(simInterval);
         simInterval = setInterval(() => {
@@ -567,11 +596,13 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
             modoVisualizacion = 'DIJKSTRA';
             btnD.classList.add('grafo-btn-active');
             btnP.classList.remove('grafo-btn-active');
+            actualizarEtiquetaPeso();
         }
         if (e.target === btnP || btnP.contains(e.target)) {
             modoVisualizacion = 'PRIM';
             btnP.classList.add('grafo-btn-active');
             btnD.classList.remove('grafo-btn-active');
+            actualizarEtiquetaPeso();
         }
     });
 
@@ -581,6 +612,7 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
             modalGrafo.classList.remove('hidden');
             cancelAnimationFrame(animationFrameId);
             dibujarGrafo();
+            actualizarEtiquetaPeso();
         });
     }
 
@@ -592,7 +624,6 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
         });
     }
 
-    // ── Navegación ────────────────────────────────────────────────
     if (btnNuevaSimSidebar) {
         btnNuevaSimSidebar.addEventListener('click', () => {
             if (btnSalirPlayback) btnSalirPlayback.classList.add('hidden');
@@ -606,7 +637,6 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
     if (btnReiniciarSim) btnReiniciarSim.addEventListener('click', generarNuevaSimulacion);
     if (selectOperacion) selectOperacion.addEventListener('change', generarNuevaSimulacion);
 
-    // ── Concluir simulación ───────────────────────────────────────
     if (btnConcluirSim) {
         btnConcluirSim.addEventListener('click', async () => {
             const nombrePaciente = inputPaciente ? inputPaciente.value.trim() : '';
@@ -620,7 +650,16 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
 
             const riskScore = parseInt(valRiskScore.textContent);
             const riskLvl   = riskScore > 70 ? "CRÍTICO" : riskScore > 30 ? "CAUTELOSO" : "SEGURO";
-            const grafoJSON = { grafo: grafoActual, posiciones: posicionesNodos, ruta: rutaOptimaActual, aristasMST: arbolPrimActual };
+            
+            // Se guardan los pesos calculados en el JSON para el Playback
+            const grafoJSON = { 
+                grafo: grafoActual, 
+                posiciones: posicionesNodos, 
+                ruta: rutaOptimaActual, 
+                aristasMST: arbolPrimActual,
+                pesoDijkstra: pesoDijkstraActual,
+                pesoPrim: pesoPrimActual
+            };
 
             const nuevaSim = {
                 id: `SIM-2026-${randomInt(1000, 9999)}`,
@@ -683,6 +722,10 @@ function initSimulacion({ state, navSimulacion, actualizarVistas }) {
         posicionesNodos = datos.posiciones || generarGrafoJerarquico(50).posiciones;
         rutaOptimaActual = datos.ruta      || [];
         arbolPrimActual  = datos.aristasMST || [];
+        pesoDijkstraActual = datos.pesoDijkstra || 0;
+        pesoPrimActual     = datos.pesoPrim || 0;
+        
+        actualizarEtiquetaPeso();
 
         fcActual     = sim.fcBase     || 85;
         paSistActual = sim.paSistBase || 125;
