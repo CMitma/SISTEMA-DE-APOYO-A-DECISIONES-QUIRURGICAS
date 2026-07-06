@@ -87,3 +87,179 @@
     background: var(--bg-main); border: 1px solid var(--border-color);
     border-radius: 8px; width: 100%; height: 400px;
 }
+
+/* ==========================================
+   GRAFO CLÍNICO — Estilos de visualización
+   ========================================== */
+
+/* Modal principal */
+.modal-grafo {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(11, 17, 32, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 3000;
+}
+.modal-grafo.hidden { display: none; }
+
+.modal-grafo-content {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.5rem;
+    width: 92vw; max-width: 1100px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+    display: flex; flex-direction: column; gap: 1rem;
+}
+
+.modal-grafo-header {
+    display: flex; justify-content: space-between; align-items: center;
+}
+.modal-grafo-header h3 {
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+}
+
+.grafo-control-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 1rem; flex-wrap: wrap;
+}
+
+.grafo-algo-btns {
+    display: flex; gap: 8px;
+}
+
+.grafo-btn {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: var(--font-main);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+}
+.grafo-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+.grafo-btn.grafo-btn-active {
+    background: rgba(10,132,255,0.15);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+/* Leyenda */
+.grafo-leyenda {
+    display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;
+}
+.leg-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; color: var(--text-secondary); font-weight: 500;
+}
+.leg-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+.leg-dot-low  { background: #30D158; box-shadow: 0 0 6px rgba(48,209,88,0.6); }
+.leg-dot-mid  { background: #FF9F0A; box-shadow: 0 0 6px rgba(255,159,10,0.6); }
+.leg-dot-high { background: #FF453A; box-shadow: 0 0 6px rgba(255,69,58,0.6); }
+.leg-line {
+    width: 22px; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, #30D158, #FF453A);
+}
+
+.grafo-wrapper {
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    min-height: 380px;
+}
+
+#canvas-grafo {
+    flex: 1;
+    display: block;
+    background: var(--bg-main);
+    border-radius: 8px 0 0 8px;
+    cursor: crosshair;
+    min-width: 0;
+}
+
+/* ==========================================
+   PANEL DIAGNÓSTICO LATERAL GRAFOOOO
+   ========================================== */
+.panel-diagnostico {
+    width: 255px;
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+    border-left: 1px solid var(--border-color);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    animation: slideInPanel 0.2s ease;
+    overflow-y: auto;
+}
+.panel-diagnostico.hidden { display: none; }
+
+@keyframes slideInPanel {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.diag-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border-color); padding-bottom: 0.7rem;
+    font-size: 0.82rem; font-weight: 700; color: var(--text-primary);
+}
+.diag-close {
+    background: none; border: none; color: var(--text-secondary);
+    cursor: pointer; font-size: 1rem; padding: 0;
+}
+.diag-close:hover { color: var(--text-primary); }
+
+.diag-badge-row { display: flex; }
+.diag-badge {
+    font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px;
+    padding: 3px 10px; border-radius: 4px; border: 1px solid;
+}
+.diag-badge-critical { color: #FF453A; border-color: rgba(255,69,58,0.4); background: rgba(255,69,58,0.1); }
+.diag-badge-warning  { color: #FF9F0A; border-color: rgba(255,159,10,0.4); background: rgba(255,159,10,0.1); }
+.diag-badge-safe     { color: #30D158; border-color: rgba(48,209,88,0.4);  background: rgba(48,209,88,0.1); }
+
+.diag-row {
+    display: flex; flex-direction: column; gap: 2px;
+}
+.diag-label {
+    font-size: 0.68rem; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.diag-val {
+    font-size: 0.82rem; color: var(--text-primary); line-height: 1.4;
+}
+
+.diag-accion {
+    background: rgba(10,132,255,0.08);
+    border: 1px solid rgba(10,132,255,0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-top: auto;
+}
+.diag-accion-icon {
+    color: var(--accent-blue); font-size: 1.1rem; margin-top: 2px;
+    flex-shrink: 0;
+}
+.diag-accion-title {
+    font-size: 0.7rem; font-weight: 700; color: var(--accent-blue);
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
+}
+.diag-accion-text {
+    font-size: 0.79rem; color: var(--text-primary); line-height: 1.45;
+}
